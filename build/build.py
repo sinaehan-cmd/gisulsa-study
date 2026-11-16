@@ -222,11 +222,11 @@ css = """
 .r-kw { font-size: 14.5px; color: #2c2c2a; line-height: 1.55; margin-top: 7px; font-weight: 600; }
 .kb-tbl { width: 100%; border-collapse: collapse; margin-top: 7px; font-size: 13px; line-height: 1.45; }
 .kb-tbl th { text-align: left; white-space: nowrap; vertical-align: top; color: #5f5e5a; font-weight: 700; padding: 4px 8px 4px 0; width: 1%; }
-.kb-tbl td { color: #2c2c2a; padding: 4px 0; border-bottom: 1px dashed #eeece2; }
+.kb-tbl td { color: #2c2c2a; padding: 4px 0; border-bottom: 1px dashed #eeece2; word-break: keep-all; overflow-wrap: anywhere; }
 .md-detail { font-size: 13.5px; line-height: 1.6; color: #2c2c2a; }
 .md-detail h4 { font-size: 14px; margin: 12px 0 4px; color: #444441; }
 .md-detail table { width: 100%; border-collapse: collapse; margin: 6px 0; font-size: 12.5px; }
-.md-detail th, .md-detail td { border: 1px solid #e3e1d8; padding: 4px 6px; text-align: left; vertical-align: top; }
+.md-detail th, .md-detail td { border: 1px solid #e3e1d8; padding: 4px 6px; text-align: left; vertical-align: top; word-break: keep-all; overflow-wrap: anywhere; }
 .md-detail th { background: #f5f4ef; }
 .md-detail pre { background: #f5f4ef; border-radius: 8px; padding: 8px; overflow-x: auto; font-size: 12px; line-height: 1.4; }
 .md-detail ul { padding-left: 18px; margin: 4px 0; }
