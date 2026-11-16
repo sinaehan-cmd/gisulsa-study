@@ -260,6 +260,26 @@ let readHide = false;""", 1)
 s = s.replace(".reveal-btn {", """.imp { display: inline-block; margin-left: 6px; font-size: 11px; font-weight: 800; border-radius: 6px; padding: 1px 6px; vertical-align: 2px; }
 .imp4 { background: #b5442a; color: #fff; } .imp3 { background: #e48ab0; color: #fff; } .imp2 { background: #eeece2; color: #5f5e5a; } .imp1 { background: #f5f4ef; color: #9a988f; }
 .reveal-btn {""", 1)
+
+# ---------- 자세히: 기출 문항 원문 · 교재 링크 ----------
+TEXTBOOK = {'sec_tb.md': ('교재_보안', 'https://docs.google.com/document/d/1e7F9zqf-XnfyBc5v9-iwfr8pJuK1K0yX1cRhhScwl6U/edit'),
+            'ds_1112.md': ('교재_DS', 'https://docs.google.com/document/d/16ifPWsEtq7SEwIhKu5-8moU5lRYILHZ3KTmvkc6PyiE/edit')}
+TB_MAP = {}
+for cid, lst in DETAIL.items():
+    for f, _ in lst:
+        if f in TEXTBOOK: TB_MAP[cid] = TEXTBOOK[f]
+old_g = "    if(c.gichul && c.gichul.n) detail += `<div class=\"lbl\">기출</div><div>${c.gichul.n}회 출제 ${gcBadge(c,true)}</div>`;"
+assert old_g in s, 'gichul'
+new_g = """    if(c.gichul && c.gichul.n){
+      detail += `<div class="lbl">📝 기출 ${c.gichul.n}회 ${gcBadge(c,true)} — 이 문제들에 다 답할 수 있나?</div><ol class="gc-list">${(c.gichul.list||[]).map(q=>`<li><b>${q[0]}회 ${esc(q[1]||'')} ${q[2]}교시</b> ${esc(q[3]||'')}${(q[3]||'').length>=80?'…':''}</li>`).join('')}</ol>`;
+    }
+    if(TB_MAP[c.id]) detail += `<div class="lbl">📘 깊게 읽기</div><a class="tb-link" href="${TB_MAP[c.id][1]}" target="_blank">${TB_MAP[c.id][0]} 열기 (구글 문서)</a>`;"""
+s = s.replace(old_g, new_g, 1)
+s = s.replace("let readHide = false;", "const TB_MAP = " + json.dumps(TB_MAP, ensure_ascii=False) + ";\nlet readHide = false;", 1)
+s = s.replace(".reveal-btn {", """.gc-list { margin: 4px 0 0; padding-left: 20px; font-size: 12.5px; line-height: 1.5; color: #444441; }
+.gc-list li { margin-bottom: 4px; }
+.tb-link { display: inline-block; margin-top: 4px; background: #eef4fb; color: #1d4f91; border-radius: 8px; padding: 6px 10px; font-size: 13px; font-weight: 700; text-decoration: none; }
+.reveal-btn {""", 1)
 open(out, 'w', encoding='utf-8').write(s)
 print('patched', len(patched), 'added', len(added))
 print('added:', ', '.join(added))

@@ -305,6 +305,9 @@ table.outline th:first-child { white-space: nowrap; }
 .md-detail blockquote { margin: 6px 0; padding: 6px 10px; background: #faf9f5; border-left: 3px solid #d3d1c7; }
 .imp { display: inline-block; margin-left: 6px; font-size: 11px; font-weight: 800; border-radius: 6px; padding: 1px 6px; vertical-align: 2px; }
 .imp4 { background: #b5442a; color: #fff; } .imp3 { background: #e48ab0; color: #fff; } .imp2 { background: #eeece2; color: #5f5e5a; } .imp1 { background: #f5f4ef; color: #9a988f; }
+.gc-list { margin: 4px 0 0; padding-left: 20px; font-size: 12.5px; line-height: 1.5; color: #444441; }
+.gc-list li { margin-bottom: 4px; }
+.tb-link { display: inline-block; margin-top: 4px; background: #eef4fb; color: #1d4f91; border-radius: 8px; padding: 6px 10px; font-size: 13px; font-weight: 700; text-decoration: none; }
 .reveal-btn { display: block; width: 100%; margin-top: 10px; border: 1px dashed #b4b2a9; background: #faf9f5; color: #444441; border-radius: 10px; padding: 12px; font-size: 14px; font-weight: 700; font-family: inherit; }
 </style>
 </head>
@@ -1634,7 +1637,7 @@ function importBackup(input){
 
 
 // ================= v18: 읽기 모드 · 정원 · 퀘스트 · 스트릭 =================
-const DATA_VER = 'v19f-20261116';
+const DATA_VER = 'v19g-20261116';
 const CARDS_KEY = 'gisulsa_cards_v18';
 const PROG_KEY = 'gisulsa_prog_v1';
 let appMode = 'home';          // home | read | cards
@@ -1708,6 +1711,7 @@ function copyToday(){
   const done = ()=> showToast('📋 복사했어요 — Claude나 GPT 채팅에 붙여넣기');
   try{ navigator.clipboard.writeText(txt).then(done, ()=>prompt('이 글을 복사해 주세요', txt)); }catch(e){ prompt('이 글을 복사해 주세요', txt); }
 }
+const TB_MAP = {"w141_servicemodel": ["교재_DS", "https://docs.google.com/document/d/16ifPWsEtq7SEwIhKu5-8moU5lRYILHZ3KTmvkc6PyiE/edit"], "kb_agentic": ["교재_DS", "https://docs.google.com/document/d/16ifPWsEtq7SEwIhKu5-8moU5lRYILHZ3KTmvkc6PyiE/edit"], "kb_mas": ["교재_DS", "https://docs.google.com/document/d/16ifPWsEtq7SEwIhKu5-8moU5lRYILHZ3KTmvkc6PyiE/edit"], "kb_physical": ["교재_DS", "https://docs.google.com/document/d/16ifPWsEtq7SEwIhKu5-8moU5lRYILHZ3KTmvkc6PyiE/edit"], "kb_serverless": ["교재_DS", "https://docs.google.com/document/d/16ifPWsEtq7SEwIhKu5-8moU5lRYILHZ3KTmvkc6PyiE/edit"], "kb_aidc": ["교재_DS", "https://docs.google.com/document/d/16ifPWsEtq7SEwIhKu5-8moU5lRYILHZ3KTmvkc6PyiE/edit"], "kb_allreduce": ["교재_DS", "https://docs.google.com/document/d/16ifPWsEtq7SEwIhKu5-8moU5lRYILHZ3KTmvkc6PyiE/edit"], "kb_zerotrust": ["교재_보안", "https://docs.google.com/document/d/1e7F9zqf-XnfyBc5v9-iwfr8pJuK1K0yX1cRhhScwl6U/edit"], "kb_n2sf": ["교재_보안", "https://docs.google.com/document/d/1e7F9zqf-XnfyBc5v9-iwfr8pJuK1K0yX1cRhhScwl6U/edit"], "kb_pseudo_steps": ["교재_보안", "https://docs.google.com/document/d/1e7F9zqf-XnfyBc5v9-iwfr8pJuK1K0yX1cRhhScwl6U/edit"], "kb_pseudo_tech": ["교재_보안", "https://docs.google.com/document/d/1e7F9zqf-XnfyBc5v9-iwfr8pJuK1K0yX1cRhhScwl6U/edit"], "kb_mpc": ["교재_보안", "https://docs.google.com/document/d/1e7F9zqf-XnfyBc5v9-iwfr8pJuK1K0yX1cRhhScwl6U/edit"], "kb_zkp": ["교재_보안", "https://docs.google.com/document/d/1e7F9zqf-XnfyBc5v9-iwfr8pJuK1K0yX1cRhhScwl6U/edit"], "kb_pbd": ["교재_보안", "https://docs.google.com/document/d/1e7F9zqf-XnfyBc5v9-iwfr8pJuK1K0yX1cRhhScwl6U/edit"], "kb_safezone": ["교재_보안", "https://docs.google.com/document/d/1e7F9zqf-XnfyBc5v9-iwfr8pJuK1K0yX1cRhhScwl6U/edit"], "kb_leak_case": ["교재_보안", "https://docs.google.com/document/d/1e7F9zqf-XnfyBc5v9-iwfr8pJuK1K0yX1cRhhScwl6U/edit"], "kb_sbom": ["교재_보안", "https://docs.google.com/document/d/1e7F9zqf-XnfyBc5v9-iwfr8pJuK1K0yX1cRhhScwl6U/edit"], "kb_supply": ["교재_보안", "https://docs.google.com/document/d/1e7F9zqf-XnfyBc5v9-iwfr8pJuK1K0yX1cRhhScwl6U/edit"]};
 let readHide = false;
 let revealed = {};
 function toggleHide(){ readHide = !readHide; revealed = {}; try{ localStorage.setItem('gisulsa_hide', readHide?'1':'0'); }catch(e){} render(); }
@@ -1920,7 +1924,10 @@ function rcardHtml(c){
     }
     if(c.detailHtml) detail += `<div class="lbl">📚 자세히 정리</div><div class="md-detail">${c.detailHtml}</div>`;
     if(c.note) detail += `<div class="lbl">특기사항</div><div class="note-box">${esc(c.note).replace(/\n/g,'<br>')}</div>`;
-    if(c.gichul && c.gichul.n) detail += `<div class="lbl">기출</div><div>${c.gichul.n}회 출제 ${gcBadge(c,true)}</div>`;
+    if(c.gichul && c.gichul.n){
+      detail += `<div class="lbl">📝 기출 ${c.gichul.n}회 ${gcBadge(c,true)} — 이 문제들에 다 답할 수 있나?</div><ol class="gc-list">${(c.gichul.list||[]).map(q=>`<li><b>${q[0]}회 ${esc(q[1]||'')} ${q[2]}교시</b> ${esc(q[3]||'')}${(q[3]||'').length>=80?'…':''}</li>`).join('')}</ol>`;
+    }
+    if(TB_MAP[c.id]) detail += `<div class="lbl">📘 깊게 읽기</div><a class="tb-link" href="${TB_MAP[c.id][1]}" target="_blank">${TB_MAP[c.id][0]} 열기 (구글 문서)</a>`;
     detail += `<div style="margin-top:8px"><button class="more-btn" onclick="openCardFromRead('${c.id}')">🗂 카드 화면에서 열기 · 수정</button></div>`;
   }
   return `<div class="rcard lv${lv} ${todayR?'done-today':''}" id="rc_${c.id}">
