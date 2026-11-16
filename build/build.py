@@ -32,6 +32,7 @@ def detail_html(cid):
 
 
 src, out = sys.argv[1], sys.argv[2]
+DATA_VER_STR = sys.argv[3] if len(sys.argv) > 3 else 'v19-20261116'
 s = open(src, encoding='utf-8').read()
 
 # ---------- 1. 데이터 패치 ----------
@@ -280,6 +281,40 @@ s = s.replace(".reveal-btn {", """.gc-list { margin: 4px 0 0; padding-left: 20px
 .gc-list li { margin-bottom: 4px; }
 .tb-link { display: inline-block; margin-top: 4px; background: #eef4fb; color: #1d4f91; border-radius: 8px; padding: 6px 10px; font-size: 13px; font-weight: 700; text-decoration: none; }
 .reveal-btn {""", 1)
+
+# ---------- 🔄 새 내용 받기: 앱이 깃에서 update.json을 가져와 합침 ----------
+UPDATE_URL = 'https://raw.githubusercontent.com/sinaehan-cmd/gisulsa-study/main/app/update.json'
+_new_ids = [t['id'] for t in TOPICS if t.get('new')]
+_upd = {'ver': DATA_VER_STR, 'cards': [by_id[i] for i in _new_ids], 'patch': PATCH, 'imp': IMP_MAP, 'tb': TB_MAP}
+open(os.path.join(os.path.dirname(os.path.abspath(out)), 'update.json'), 'w', encoding='utf-8').write(json.dumps(_upd, ensure_ascii=False))
+pull_js = """
+const UPDATE_URL = '""" + UPDATE_URL + """';
+function pullUpdate(manual){
+  if(!manual){ try{ if(localStorage.getItem('gisulsa_upd_day')===localDate()) return; }catch(e){} }
+  if(manual) showToast('🔄 새 내용 확인 중…');
+  fetch(UPDATE_URL + '?t=' + Date.now()).then(r=>{ if(!r.ok) throw new Error(r.status); return r.json(); }).then(u=>{
+    try{ localStorage.setItem('gisulsa_upd_day', localDate()); }catch(e){}
+    const have = {}; cards.forEach(c=>have[c.id]=c);
+    let added = 0, touched = 0;
+    (u.cards||[]).forEach(c=>{ if(!have[c.id]){ cards.push(normalizeCard(c)); have[c.id]=cards[cards.length-1]; added++; } });
+    Object.keys(u.patch||{}).forEach(id=>{ const c = have[id]; if(!c) return; const before = JSON.stringify([c.core, c.detailHtml]); applyKbPatch(c, u.patch[id]); if(JSON.stringify([c.core, c.detailHtml])!==before) touched++; });
+    Object.keys(u.imp||{}).forEach(id=>{ if(have[id]) have[id].imp = u.imp[id]; });
+    Object.assign(TB_MAP, u.tb||{});
+    saveCards();
+    if(added || touched){ render(); showToast('✅ 새 카드 '+added+'장 · 보강 '+touched+'장 받았어요'); }
+    else if(manual) showToast('이미 최신이에요 👍');
+  }).catch(e=>{ if(manual) showToast('인터넷 연결을 확인해 주세요'); });
+}
+"""
+s = s.replace("let readHide = false;", pull_js + "let readHide = false;", 1)
+# 버튼: 읽기 화면 · 홈 모드 바
+mb = "return `<div class=\"mode-bar\">${b('home','🏠 오늘')}${b('read','📖 읽기')}${b('cards','🗂 카드')}</div>`;"
+assert mb in s, 'modebar'
+s = s.replace(mb, "return `<div class=\"mode-bar\">${b('home','🏠 오늘')}${b('read','📖 읽기')}${b('cards','🗂 카드')}<button class=\"mode-btn upd-btn\" onclick=\"pullUpdate(true)\" title=\"새 내용 받기\">🔄</button></div>`;", 1)
+# 앱 열 때 하루 한 번 자동 확인
+s = s.replace("\nloadCards();\n</script>", "\nloadCards();\nsetTimeout(()=>pullUpdate(false), 800);\n</script>", 1)
+assert "pullUpdate(false)" in s, 'autoload'
+s = s.replace(".reveal-btn {", ".upd-btn { flex: 0 0 auto !important; width: 52px; }\n.reveal-btn {", 1)
 open(out, 'w', encoding='utf-8').write(s)
 print('patched', len(patched), 'added', len(added))
 print('added:', ', '.join(added))
