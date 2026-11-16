@@ -309,6 +309,7 @@ table.outline th:first-child { white-space: nowrap; }
 .gc-list li { margin-bottom: 4px; }
 .tb-link { display: inline-block; margin-top: 4px; background: #eef4fb; color: #1d4f91; border-radius: 8px; padding: 6px 10px; font-size: 13px; font-weight: 700; text-decoration: none; }
 .upd-btn { flex: 0 0 auto !important; width: 52px; }
+.warn-chip { display: inline-block; margin-top: 7px; background: #fdeceb; color: #8f2a22; border-radius: 8px; padding: 3px 8px; font-size: 12px; font-weight: 700; }
 .reveal-btn { display: block; width: 100%; margin-top: 10px; border: 1px dashed #b4b2a9; background: #faf9f5; color: #444441; border-radius: 10px; padding: 12px; font-size: 14px; font-weight: 700; font-family: inherit; }
 </style>
 </head>
@@ -1638,7 +1639,7 @@ function importBackup(input){
 
 
 // ================= v18: 읽기 모드 · 정원 · 퀘스트 · 스트릭 =================
-const DATA_VER = 'v19i-20261116';
+const DATA_VER = 'v19j-20261116';
 const CARDS_KEY = 'gisulsa_cards_v18';
 const PROG_KEY = 'gisulsa_prog_v1';
 let appMode = 'home';          // home | read | cards
@@ -1698,10 +1699,10 @@ function applyKbPatch(c, p){
   core.kbTag = '지난주';
   c.core = core;
 }
-let readView = 'full';   // mini 초간단(두음만) · short 간단(핵심어+두음+❌) · full 길게(+키워드 표)
-try{ readView = localStorage.getItem('gisulsa_view') || 'full'; }catch(e){}
+let readView = 'short';   // mini 초간단(두음만) · short 간단(핵심어+두음, 기본) · full 길게(+키워드 표·❌)
+try{ readView = localStorage.getItem('gisulsa_view2') || 'short'; }catch(e){}
 const VIEW_NAME = {mini:'초간단', short:'간단', full:'길게'};
-function cycleView(){ readView = readView==='mini' ? 'short' : (readView==='short' ? 'full' : 'mini'); try{ localStorage.setItem('gisulsa_view', readView); }catch(e){} render(); }
+function cycleView(){ readView = readView==='mini' ? 'short' : (readView==='short' ? 'full' : 'mini'); try{ localStorage.setItem('gisulsa_view2', readView); }catch(e){} render(); }
 const IMP_RANK_JS = {'최상':4,'상':3,'중':2,'하':1};
 function copyToday(){
   const t = localDate(); const log = prog.log[t] || {rated:{}};
@@ -1932,6 +1933,8 @@ function rcardHtml(c){
   const hidden = readHide && !revealed[c.id] && !todayR;
   let detail = '';
   if(open){
+    if(readView!=='full' && (core.kb||[]).length) detail += `<div class="lbl">🔑 키워드 표</div>${kbHtml(core)}`;
+    if(readView!=='full' && core.warn) detail += `<div class="lbl">❌ 헷갈림 · 내가 틀린 것</div><div class="r-warn" style="margin-top:2px">${esc(core.warn)}</div>`;
     if(c.type==='compare'){
       detail += `<div class="lbl">비교표</div><table class="mini"><tr><th>관점</th><th>${esc(c.itemAName||'A')}</th><th>${esc(c.itemBName||'B')}</th></tr>${(c.compareRows||[]).map(r=>`<tr><td>${esc(r.aspect)}</td><td>${esc(r.a)}</td><td>${esc(r.b)}</td></tr>`).join('')}</table>`;
     } else {
@@ -1955,7 +1958,7 @@ function rcardHtml(c){
     ${readView!=='mini' ? (core.kw ? `<div class="r-kw">🔑 ${esc(core.kw)}</div>` : (core.one ? `<div class="r-one">${esc(core.one)}</div>` : '')) : ''}
     ${core.mnem ? `<div class="r-mnem">🎵 ${esc(core.mnem)}</div>` : (readView==='mini' && core.one ? `<div class="r-one">${esc(core.one)}</div>` : '')}
     ${readView==='full' ? kbHtml(core) : ''}
-    ${readView!=='mini' && core.warn ? `<div class="r-warn">❌ ${esc(core.warn)}</div>` : ''}`}
+    ${core.warn ? (readView==='full' ? `<div class="r-warn">❌ ${esc(core.warn)}</div>` : `<span class="warn-chip">❌ 헷갈림·틀린 것 있음 — 자세히</span>`) : ''}`}
     <div class="r-actions">
       <button class="rate ${todayR===1?'on1':''}" onclick="onRate('${c.id}',1)">🌱 몰라</button>
       <button class="rate ${todayR===2?'on2':''}" onclick="onRate('${c.id}',2)">🌿 애매</button>

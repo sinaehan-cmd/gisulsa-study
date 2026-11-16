@@ -147,10 +147,10 @@ function applyKbPatch(c, p){
   core.kbTag = '지난주';
   c.core = core;
 }
-let readView = 'full';   // mini 초간단(두음만) · short 간단(핵심어+두음+❌) · full 길게(+키워드 표)
-try{ readView = localStorage.getItem('gisulsa_view') || 'full'; }catch(e){}
+let readView = 'short';   // mini 초간단(두음만) · short 간단(핵심어+두음, 기본) · full 길게(+키워드 표·❌)
+try{ readView = localStorage.getItem('gisulsa_view2') || 'short'; }catch(e){}
 const VIEW_NAME = {mini:'초간단', short:'간단', full:'길게'};
-function cycleView(){ readView = readView==='mini' ? 'short' : (readView==='short' ? 'full' : 'mini'); try{ localStorage.setItem('gisulsa_view', readView); }catch(e){} render(); }
+function cycleView(){ readView = readView==='mini' ? 'short' : (readView==='short' ? 'full' : 'mini'); try{ localStorage.setItem('gisulsa_view2', readView); }catch(e){} render(); }
 let readHide = false;
 let revealed = {};
 function toggleHide(){ readHide = !readHide; revealed = {}; try{ localStorage.setItem('gisulsa_hide', readHide?'1':'0'); }catch(e){} render(); }
@@ -179,7 +179,7 @@ new_mid = """    ${hidden ? `<button class="reveal-btn" onclick="revealCard('${c
     ${readView!=='mini' ? (core.kw ? `<div class="r-kw">🔑 ${esc(core.kw)}</div>` : (core.one ? `<div class="r-one">${esc(core.one)}</div>` : '')) : ''}
     ${core.mnem ? `<div class="r-mnem">🎵 ${esc(core.mnem)}</div>` : (readView==='mini' && core.one ? `<div class="r-one">${esc(core.one)}</div>` : '')}
     ${readView==='full' ? kbHtml(core) : ''}
-    ${readView!=='mini' && core.warn ? `<div class="r-warn">❌ ${esc(core.warn)}</div>` : ''}`}"""
+    ${core.warn ? (readView==='full' ? `<div class="r-warn">❌ ${esc(core.warn)}</div>` : `<span class="warn-chip">❌ 헷갈림·틀린 것 있음 — 자세히</span>`) : ''}`}"""
 s = s.replace(old_mid, new_mid)
 old_open = "  const open = !!openDetail[c.id];\n  let detail = '';"
 assert old_open in s
@@ -315,6 +315,12 @@ s = s.replace(mb, "return `<div class=\"mode-bar\">${b('home','🏠 오늘')}${b
 s = s.replace("\nloadCards();\n</script>", "\nloadCards();\nsetTimeout(()=>pullUpdate(false), 800);\n</script>", 1)
 assert "pullUpdate(false)" in s, 'autoload'
 s = s.replace(".reveal-btn {", ".upd-btn { flex: 0 0 auto !important; width: 52px; }\n.reveal-btn {", 1)
+
+# ---------- 자세히 맨 위: 키워드 표 · 내가 틀린 것 ----------
+old_det = "  if(open){\n    if(c.type==='compare'){"
+assert old_det in s, 'det'
+s = s.replace(old_det, "  if(open){\n    if(readView!=='full' && (core.kb||[]).length) detail += `<div class=\"lbl\">🔑 키워드 표</div>${kbHtml(core)}`;\n    if(readView!=='full' && core.warn) detail += `<div class=\"lbl\">❌ 헷갈림 · 내가 틀린 것</div><div class=\"r-warn\" style=\"margin-top:2px\">${esc(core.warn)}</div>`;\n    if(c.type==='compare'){", 1)
+s = s.replace(".reveal-btn {", ".warn-chip { display: inline-block; margin-top: 7px; background: #fdeceb; color: #8f2a22; border-radius: 8px; padding: 3px 8px; font-size: 12px; font-weight: 700; }\n.reveal-btn {", 1)
 open(out, 'w', encoding='utf-8').write(s)
 print('patched', len(patched), 'added', len(added))
 print('added:', ', '.join(added))
