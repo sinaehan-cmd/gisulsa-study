@@ -40,4 +40,13 @@ DETAIL = {
  'kb_sbom': [('sec_tb.md', ['# G. SBOM', '## 쉽게 먼저']), ('sec_tb.md', ['# G. SBOM', '## 정의']), ('sec_tb.md', ['# G. SBOM', '## 등장 배경']),
              ('sec_tb.md', ['# G. SBOM', '## NTIA']), ('sec_tb.md', ['# G. SBOM', '## 표준 포맷']), ('sec_tb.md', ['# G. SBOM', '## 오픈소스']), ('sec_tb.md', ['# G. SBOM', '## SBOM 기반'])],
  'kb_supply': [('sec_tb.md', ['# G. SBOM', '## 공급망 보안']), ('sec_tb.md', ['# G. SBOM', '## 제로트러스트 기반'])],
+ 'sla': [('itsm_sla.md', ['## 0. 한눈에']), ('itsm_sla.md', ['## 5. SLA']), ('itsm_sla.md', ['## 6. SLA 위반']), ('itsm_sla.md', ['## 8. 문제 유형별'])],
+ 'kb_itsm': [('itsm_sla.md', ['## 0. 한눈에']), ('itsm_sla.md', ['## 1. ITSM']), ('itsm_sla.md', ['## 2. ITIL'])],
+ 'kb_iso20000': [('itsm_sla.md', ['## 3. ISO/IEC 20000'])],
+ 'kb_slm': [('itsm_sla.md', ['## 4. 서비스수준관리']), ('itsm_sla.md', ['## 5. SLA', '### 5-2'])],
+ 'kb_sla_metric': [('itsm_sla.md', ['## 5. SLA', '### 5-5'])],
+ 'kb_sla_pi': [('itsm_sla.md', ['## 6. SLA 위반'])],
+ 'kb_sla_public': [('itsm_sla.md', ['## 7. 분야별', '### 7-1'])],
+ 'kb_sla_cloud': [('itsm_sla.md', ['## 7. 분야별', '### 7-2'])],
+ 'kb_sla_fin': [('itsm_sla.md', ['## 7. 분야별', '### 7-3'])],
 }
