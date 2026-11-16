@@ -84,6 +84,33 @@ for cid in DETAIL:
         by_id[cid]['detailHtml'] = detail_html(cid)
         PATCH[cid] = {'detailOnly': True, 'detail': by_id[cid]['detailHtml']}
 
+
+# ---------- 학원 중요도(최상·상·중·하) ----------
+import csv as _csv
+IMP_RANK = {'최상': 4, '상': 3, '중': 2, '하': 1}
+def _n(x): return re.sub(r'[^0-9a-z가-힣]', '', (x or '').lower())
+def _main(x): return _n(re.split(r'[(（]', x or '')[0])
+_rows = list(_csv.DictReader(open(os.path.join(SRC, '학원토픽.csv'), encoding='utf-8-sig')))
+_imp_topics = [(_n(r['토픽']), _main(r['토픽']), r['중요도']) for r in _rows if r['중요도'] in IMP_RANK]
+def find_imp(title, en=''):
+    cands = {_n(title), _main(title)}
+    if en: cands |= {_main(en)}
+    cands = {c for c in cands if len(c) >= 2}
+    best = ''
+    for full, main, imp in _imp_topics:
+        hit = any(c == full or c == main for c in cands)
+        if not hit:
+            hit = any(len(c) >= 4 and (c in full or (len(main) >= 4 and main in c)) for c in cands)
+        if hit and IMP_RANK[imp] > IMP_RANK.get(best, 0):
+            best = imp
+    return best
+IMP_OVERRIDE = {t['id']: t['imp'] for t in TOPICS if t.get('imp')}
+for c in cards:
+    if c.get('type') == 'problem': continue
+    imp = IMP_OVERRIDE.get(c['id']) or find_imp(c.get('title',''), c.get('en',''))
+    if imp: c['imp'] = imp
+    elif 'imp' in c: del c['imp']
+IMP_MAP = {c['id']: c['imp'] for c in cards if c.get('imp')}
 data_json = json.dumps(cards, ensure_ascii=False).replace('</', '<\\/')
 s = s[:m.start(2)] + data_json + s[m.end(2):]
 
@@ -96,7 +123,7 @@ new_load = """    let old = (ls && Array.isArray(ls.cards)) ? ls.cards : null;
     if(old && old.length && emb.length){     // v19: 이전 버전에서 고친 카드는 그대로 두고, 새 카드만 추가 + 키워드판 패치
       const have = {}; old.forEach(o=>{ if(o && o.id) have[o.id]=1; });
       cards = old.concat(emb.filter(c=>!have[c.id]));
-      cards.forEach(c=>{ const p = KB_PATCH[c.id]; if(p) applyKbPatch(c, p); });
+      cards.forEach(c=>{ const p = KB_PATCH[c.id]; if(p) applyKbPatch(c, p); if(IMP_MAP[c.id]) c.imp = IMP_MAP[c.id]; });
       old = null;
     } else {
       cards = emb.length ? emb : DEFAULT_CARDS.slice();
@@ -106,6 +133,7 @@ s = s.replace(old_load, new_load)
 
 helpers = """
 // ================= v19: 키워드판 =================
+const IMP_MAP = """ + json.dumps(IMP_MAP, ensure_ascii=False) + """;
 const KB_PATCH = """ + patch_js + """;
 function applyKbPatch(c, p){
   if(p.detail) c.detailHtml = p.detail;
@@ -207,6 +235,31 @@ css = """
 s = s.replace("</style>", css + "</style>", 1)
 s = s.replace('v18', 'v19', 0)
 
+
+# ---------- 중요도 배지 · ⭐ 필터 · 오늘 결과 복사 ----------
+old_head = "<span class=\"r-title\">${c.type==='compare'?'🔀 ':''}${esc(c.title)}</span>"
+assert old_head in s, 'head'
+s = s.replace(old_head, old_head + "${c.imp ? `<span class=\"imp imp${IMP_RANK_JS[c.imp]}\">${c.imp}</span>` : ''}", 1)
+s = s.replace("${f('kb','📌 키워드판')}", "${f('kb','📌 키워드판')}${f('top','⭐ 최상·상')}", 1)
+s = s.replace("    if(readFilter==='kb') return !!(c.core && c.core.kbTag);",
+              "    if(readFilter==='kb') return !!(c.core && c.core.kbTag);\n    if(readFilter==='top') return c.imp==='최상' || c.imp==='상';", 1)
+ob = '<button onclick="cycleView()">👁 ${VIEW_NAME[readView]}</button>'
+assert ob in s, 'viewbtn'
+s = s.replace(ob, ob + '<button onclick="copyToday()">📋 오늘 결과 복사</button>', 1)
+s = s.replace("let readHide = false;", """const IMP_RANK_JS = {'최상':4,'상':3,'중':2,'하':1};
+function copyToday(){
+  const t = localDate(); const log = prog.log[t] || {rated:{}};
+  const by = {1:[],2:[],3:[]};
+  Object.keys(log.rated).forEach(id=>{ const c = cards.find(x=>x.id===id); if(c) by[log.rated[id]].push(c.title + (c.imp?'('+c.imp+')':'')); });
+  const n = by[1].length + by[2].length + by[3].length;
+  const txt = `[암기노트 ${t}] ${n}장 · 알아 ${by[3].length} · 애매 ${by[2].length} · 몰라 ${by[1].length}\\n몰라: ${by[1].join(', ')||'-'}\\n애매: ${by[2].join(', ')||'-'}\\n알아: ${by[3].join(', ')||'-'}`;
+  const done = ()=> showToast('📋 복사했어요 — Claude나 GPT 채팅에 붙여넣기');
+  try{ navigator.clipboard.writeText(txt).then(done, ()=>prompt('이 글을 복사해 주세요', txt)); }catch(e){ prompt('이 글을 복사해 주세요', txt); }
+}
+let readHide = false;""", 1)
+s = s.replace(".reveal-btn {", """.imp { display: inline-block; margin-left: 6px; font-size: 11px; font-weight: 800; border-radius: 6px; padding: 1px 6px; vertical-align: 2px; }
+.imp4 { background: #b5442a; color: #fff; } .imp3 { background: #e48ab0; color: #fff; } .imp2 { background: #eeece2; color: #5f5e5a; } .imp1 { background: #f5f4ef; color: #9a988f; }
+.reveal-btn {""", 1)
 open(out, 'w', encoding='utf-8').write(s)
 print('patched', len(patched), 'added', len(added))
 print('added:', ', '.join(added))
