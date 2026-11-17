@@ -1643,7 +1643,7 @@ function importBackup(input){
 
 
 // ================= v18: 읽기 모드 · 정원 · 퀘스트 · 스트릭 =================
-const DATA_VER = 'v19r-20261117';
+const DATA_VER = 'v19s-20261117';
 const CARDS_KEY = 'gisulsa_cards_v18';
 const PROG_KEY = 'gisulsa_prog_v1';
 let appMode = 'home';          // home | read | cards
@@ -1751,9 +1751,9 @@ let revealed = {};
 function toggleHide(){ readHide = !readHide; revealed = {}; try{ localStorage.setItem('gisulsa_hide', readHide?'1':'0'); }catch(e){} render(); }
 try{ readHide = localStorage.getItem('gisulsa_hide')==='1'; }catch(e){}
 function revealCard(id){ revealed[id] = true; const c = cards.find(x=>x.id===id); const el = document.getElementById('rc_'+id); if(el && c) el.outerHTML = rcardHtml(c); }
-function kbHtml(core){
+function kbHtml(core, desc){
   if(!core.kb || !core.kb.length) return '';
-  const three = core.kb.some(r=>r[2]);
+  const three = !!desc && core.kb.some(r=>r[2]);
   return `<table class="kb-tbl">${core.kb.map(r=>`<tr><th>${esc(r[0])}</th><td><b>${esc(r[1])}</b>${three && r[2] ? `<div class="kb-desc">${esc(r[2])}</div>` : ''}</td></tr>`).join('')}</table>`;
 }
 // ---------- 평가 ----------
@@ -1948,7 +1948,7 @@ function rcardHtml(c){
   const hidden = readHide && !revealed[c.id] && !todayR;
   let detail = '';
   if(open){
-    if(readView!=='full' && (core.kb||[]).length) detail += `<div class="lbl">📌 키워드 설명</div>${kbHtml(core)}`;
+    if((core.kb||[]).length) detail += `<div class="lbl">📌 키워드 설명</div>${kbHtml(core, true)}`;
 
     if(c.type==='compare' && core.fmt!==3){
       detail += `<div class="lbl">비교표</div><table class="mini"><tr><th>관점</th><th>${esc(c.itemAName||'A')}</th><th>${esc(c.itemBName||'B')}</th></tr>${(c.compareRows||[]).map(r=>`<tr><td>${esc(r.aspect)}</td><td>${esc(r.a)}</td><td>${esc(r.b)}</td></tr>`).join('')}</table>`;
@@ -1974,7 +1974,7 @@ function rcardHtml(c){
     ${hidden ? `<button class="reveal-btn" onclick="revealCard('${c.id}')">👀 말로 먼저 해보고 → 펼치기</button>` : `
     ${readView!=='mini' ? (core.kw ? `<div class="r-kw">🔑 ${esc(core.kw)}</div>` : (core.one ? `<div class="r-one">${esc(core.one)}</div>` : '')) : ''}
     ${core.mnem ? `<div class="r-mnem">🎵 ${esc(core.mnem)}</div>` : (readView==='mini' && core.one ? `<div class="r-one">${esc(core.one)}</div>` : '')}
-    ${readView==='full' ? kbHtml(core) : ''}
+    ${readView==='full' ? kbHtml(core, false) : ''}
 `}
     <div class="r-actions">
       <button class="rate ${todayR===1?'on1':''}" onclick="onRate('${c.id}',1)">🌱 몰라</button>

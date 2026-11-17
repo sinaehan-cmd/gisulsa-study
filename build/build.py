@@ -425,6 +425,20 @@ s = s.replace(f2, "    if(c.type==='compare' && core.fmt!==3){", 1)
 f3 = "    if(c.note) detail += `<div class=\"lbl\">특기사항</div>"
 assert f3 in s, 'f3'
 s = s.replace(f3, "    if(c.note && core.fmt!==3) detail += `<div class=\"lbl\">특기사항</div>", 1)
+
+# 11/17: 앞면(길게 보기·가리기 펼침)은 키워드만, 설명은 '자세히'에서만
+g1 = "function kbHtml(core){\n  if(!core.kb || !core.kb.length) return '';\n  const three = core.kb.some(r=>r[2]);"
+assert g1 in s, 'g1'
+s = s.replace(g1, "function kbHtml(core, desc){\n  if(!core.kb || !core.kb.length) return '';\n  const three = !!desc && core.kb.some(r=>r[2]);", 1)
+g2 = "    ${readView==='full' ? kbHtml(core) : ''}"
+assert g2 in s, 'g2'
+s = s.replace(g2, "    ${readView==='full' ? kbHtml(core, false) : ''}", 1)
+g3 = "<div class=\"lbl\">📌 키워드 설명</div>${kbHtml(core)}"
+assert g3 in s, 'g3'
+s = s.replace(g3, "<div class=\"lbl\">📌 키워드 설명</div>${kbHtml(core, true)}", 1)
+g4 = "if(readView!=='full' && (core.kb||[]).length) detail +="
+assert g4 in s, 'g4'
+s = s.replace(g4, "if((core.kb||[]).length) detail +=", 1)
 open(out, 'w', encoding='utf-8').write(s)
 print('patched', len(patched), 'added', len(added))
 print('added:', ', '.join(added))
