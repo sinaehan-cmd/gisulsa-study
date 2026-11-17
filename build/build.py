@@ -445,6 +445,12 @@ v1 = """title="새 내용 받기">🔄</button></div>`;"""
 assert v1 in s, 'v1'
 s = s.replace(v1, """title="새 내용 받기">🔄</button></div><div style="text-align:right;font-size:11px;color:#999;margin:-4px 6px 4px">앱 버전 ${APP_VER}</div>`;""", 1)
 s = s.replace("const DATA_VER = ", "const APP_VER = '" + DATA_VER_STR + "';\nconst DATA_VER = ", 1)
+
+# 11/17: 자세히 순서 (build/patch_order.py)
+sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
+import patch_order
+assert patch_order.OLD in s, 'order'
+s = s.replace(patch_order.OLD, patch_order.NEW, 1)
 open(out, 'w', encoding='utf-8').write(s)
 print('patched', len(patched), 'added', len(added))
 print('added:', ', '.join(added))
