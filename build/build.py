@@ -22,8 +22,19 @@ def extract(fname, path):
             if l2 and l2 <= lv: end = j; break
         lo, hi = found, end
     return '\n'.join(lines[lo:hi])
+EXCLUDE = re.compile(r'대화|오답|틀린|인출|암기송|노래|인수인계|다음 복습|복습|기록|채점|학생|사용자|피드백|진도|확인 수준|평가·오답|❌')
+def strip_excluded(md):
+    out, skip_lv = [], 0
+    for line in md.split('\n'):
+        lv = _level(line)
+        if lv:
+            if skip_lv and lv <= skip_lv: skip_lv = 0
+            if not skip_lv and EXCLUDE.search(line): skip_lv = lv; continue
+        if not skip_lv: out.append(line)
+    return '\n'.join(out)
 def detail_html(cid):
-    parts = [extract(f, pth) for f, pth in DETAIL.get(cid, [])]
+    parts = [strip_excluded(extract(f, pth)) for f, pth in DETAIL.get(cid, []) if not any(EXCLUDE.search(h) for h in pth)]
+    parts = [x for x in parts if x.strip()]
     if not parts: return ''
     md = '\n\n'.join(parts)
     md = re.sub(r'^#{1,6} ', '#### ', md, flags=re.M)   # 제목 크기 통일
@@ -40,7 +51,12 @@ m = re.search(r'(<script type="application/json" id="embedded-data">)(.*?)(</scr
 cards = json.loads(m.group(2))
 by_id = {c['id']: c for c in cards}
 
+def short_warn(w):
+    segs = [x.strip() for x in re.split(r' · |→ 밤|; ', w or '') if x.strip()]
+    w2 = ' · '.join(segs[-2:])
+    return w2 if len(w2) <= 90 else w2[:88] + '…'
 def patch_for(t):
+    t = dict(t); t['warn'] = ''
     p = {'kw': t.get('kw', ''), 'kb': [list(x) for x in t.get('kb', [])], 'mnem': t.get('mnem', ''), 'warn': t.get('warn', ''), 'detail': detail_html(t['id'])}
     return p
 
@@ -55,6 +71,8 @@ for t in TOPICS:
              "id": t['id'], "title": t['title'], "en": t.get('en', ''), "def": t.get('defn', ''),
              "features": [], "rows": [], "note": "", "subject": t['subject'],
              "core": {"one": t.get('defn', ''), "mnem": t.get('mnem', ''), "warn": t.get('warn', '')}}
+        c['rows'] = [{"div": r[0], "comp": r[1], "desc": ""} for r in t.get('kb', [])]
+        c['features'] = [x.strip() for x in re.split(r'[·,]', t.get('kw', '')) if x.strip()][:6]
         cards.append(c); by_id[c['id']] = c; added.append(t['title'])
     else:
         if t['id'] not in by_id:
@@ -71,12 +89,14 @@ def apply(c, p):
     core['kb'] = p['kb']
     if p['mnem'] and not core.get('mnem'):
         core['mnem'] = p['mnem']
-    if p['warn'] and p['warn'] not in (core.get('warn') or ''):
-        core['warn'] = (core['warn'] + ' · ' + p['warn']) if core.get('warn') else p['warn']
+    core['warn'] = p.get('baseWarn', '')
     core['kbTag'] = '지난주'
     c['core'] = core
     if p.get('detail'): c['detailHtml'] = p['detail']
 
+for cid, p in PATCH.items():
+    if 'detailOnly' not in p:
+        p['baseWarn'] = '' if cid.startswith('kb_') else ((by_id[cid].get('core') or {}).get('warn') or '')
 for cid, p in PATCH.items():
     apply(by_id[cid], p)
 for cid in DETAIL:
@@ -143,7 +163,7 @@ function applyKbPatch(c, p){
   if(!core.one) core.one = c.def || '';
   core.kw = p.kw; core.kb = p.kb;
   if(p.mnem && !core.mnem) core.mnem = p.mnem;
-  if(p.warn && (core.warn||'').indexOf(p.warn) < 0) core.warn = core.warn ? core.warn + ' · ' + p.warn : p.warn;
+  core.warn = p.baseWarn || '';
   core.kbTag = '지난주';
   c.core = core;
 }
@@ -209,7 +229,7 @@ s = s.replace(old_q, kbq + old_q, 1)
 # 자세히 열면 정리 노트(detailHtml) 보이기
 old_note = "    if(c.note) detail += `<div class=\"lbl\">특기사항</div>"
 assert old_note in s
-s = s.replace(old_note, "    if(c.detailHtml) detail += `<div class=\"lbl\">📚 자세히 정리</div><div class=\"md-detail\">${c.detailHtml}</div>`;\n" + old_note, 1)
+s = s.replace(old_note, "    if(c.detailHtml) detail += `<details class=\"md-wrap\"><summary>📚 교재 노트 펼치기</summary><div class=\"md-detail\">${c.detailHtml}</div></details>`;\n" + old_note, 1)
 
 # 편집 저장 시 kw·kb 유지
 for fid in ('f', 'cf'):
@@ -231,6 +251,7 @@ css = """
 .md-detail pre { background: #f5f4ef; border-radius: 8px; padding: 8px; overflow-x: auto; font-size: 12px; line-height: 1.4; }
 .md-detail ul { padding-left: 18px; margin: 4px 0; }
 .md-detail blockquote { margin: 6px 0; padding: 6px 10px; background: #faf9f5; border-left: 3px solid #d3d1c7; }
+.md-wrap { margin-top: 10px; } .md-wrap summary { cursor: pointer; font-weight: 700; color: #5f5e5a; font-size: 13px; padding: 6px 0; }
 .reveal-btn { display: block; width: 100%; margin-top: 10px; border: 1px dashed #b4b2a9; background: #faf9f5; color: #444441; border-radius: 10px; padding: 12px; font-size: 14px; font-weight: 700; font-family: inherit; }
 """
 s = s.replace("</style>", css + "</style>", 1)
@@ -319,8 +340,16 @@ s = s.replace(".reveal-btn {", ".upd-btn { flex: 0 0 auto !important; width: 52p
 # ---------- 자세히 맨 위: 키워드 표 · 내가 틀린 것 ----------
 old_det = "  if(open){\n    if(c.type==='compare'){"
 assert old_det in s, 'det'
-s = s.replace(old_det, "  if(open){\n    if(readView!=='full' && (core.kb||[]).length) detail += `<div class=\"lbl\">🔑 키워드 표</div>${kbHtml(core)}`;\n    if(readView!=='full' && core.warn) detail += `<div class=\"lbl\">❌ 헷갈림 · 내가 틀린 것</div><div class=\"r-warn\" style=\"margin-top:2px\">${esc(core.warn)}</div>`;\n    if(c.type==='compare'){", 1)
+s = s.replace(old_det, "  if(open){\n    if(readView!=='full' && (core.kb||[]).length) detail += `<div class=\"lbl\">📌 외울 것</div>${kbHtml(core)}`;\n    if(readView!=='full' && core.warn) detail += `<div class=\"lbl\">❌ 헷갈림 · 내가 틀린 것</div><div class=\"r-warn\" style=\"margin-top:2px\">${esc(core.warn)}</div>`;\n    if(c.type==='compare'){", 1)
 s = s.replace(".reveal-btn {", ".warn-chip { display: inline-block; margin-top: 7px; background: #fdeceb; color: #8f2a22; border-radius: 8px; padding: 3px 8px; font-size: 12px; font-weight: 700; }\n.reveal-btn {", 1)
+
+# ---------- 읽기 자세히: 새 카드는 📌 외울 것 표가 곧 구성요소라 중복 표시 안 함 ----------
+of = "      if((c.features||[]).length) detail += `<div class=\"lbl\">특징</div>"
+assert of in s, 'feat'
+s = s.replace(of, "      const kbNew = c.id.indexOf('kb_')===0;\n      if(!kbNew && (c.features||[]).length) detail += `<div class=\"lbl\">특징</div>", 1)
+orow = "      if((c.rows||[]).length) detail += `<div class=\"lbl\">구성요소</div>"
+assert orow in s, 'rows'
+s = s.replace(orow, "      if(!kbNew && (c.rows||[]).length) detail += `<div class=\"lbl\">구성요소</div>", 1)
 open(out, 'w', encoding='utf-8').write(s)
 print('patched', len(patched), 'added', len(added))
 print('added:', ', '.join(added))
