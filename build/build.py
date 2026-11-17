@@ -5,6 +5,29 @@ from kb_data import TOPICS
 from detail_map import DETAIL
 import markdown, os
 SRC = os.path.join(os.path.dirname(os.path.abspath(__file__)), 'src')
+# ---------- 📘 교재 노트 = 링크만 ----------
+GH = 'https://github.com/sinaehan-cmd/gisulsa-study/blob/main/build/src/'
+SRC_LINKS = {
+  'sec_tb.md': ('교재_보안', 'https://docs.google.com/document/d/1e7F9zqf-XnfyBc5v9-iwfr8pJuK1K0yX1cRhhScwl6U/edit'),
+  'ds_1112.md': ('디지털서비스 11/12 정리', 'https://drive.google.com/file/d/1-20UzIqYTra0LT5Aa6Dqq-ZpkS83UD72/view'),
+  'pet_1115.md': ('PET·동형암호 11/15 정리', 'https://drive.google.com/file/d/19VsI0BRjmnhtXxQSaIwKz7sRFqE8lLvD/view'),
+  'net_weekly_0107.md': ('네트워크 주간모의고사 정리', 'https://drive.google.com/file/d/1K9iBtnYr73zsQiAldPvpyLbyhRsJ1qCQ/view'),
+}
+try:
+    SRC_LINKS.update(json.load(open(os.path.join(SRC, 'links.json'), encoding='utf-8')))
+except FileNotFoundError:
+    pass
+def card_links(cid):
+    out, seen = [], set()
+    for f, _ in DETAIL.get(cid, []):
+        if f in seen: continue
+        seen.add(f)
+        name, url = SRC_LINKS.get(f, (os.path.splitext(f)[0], GH + f))
+        out.append([name, url])
+    return out
+def detail_html(cid):
+    return ''
+
 def _level(line):
     m = re.match(r'^(#{1,6}) ', line); return len(m.group(1)) if m else 0
 def extract(fname, path):
@@ -57,7 +80,7 @@ def short_warn(w):
     return w2 if len(w2) <= 90 else w2[:88] + '…'
 def patch_for(t):
     t = dict(t); t['warn'] = ''
-    p = {'kw': t.get('kw', ''), 'kb': [list(x) for x in t.get('kb', [])], 'mnem': t.get('mnem', ''), 'warn': t.get('warn', ''), 'detail': detail_html(t['id'])}
+    p = {'kw': t.get('kw', ''), 'kb': [list(x) for x in t.get('kb', [])], 'mnem': t.get('mnem', ''), 'warn': t.get('warn', ''), 'detail': '', 'links': card_links(t['id'])}
     return p
 
 PATCH = {}
@@ -80,6 +103,7 @@ for t in TOPICS:
         patched.append(t['title'])
     PATCH[t['id']] = patch_for(t)
 
+
 # 패치 적용 (JS와 같은 규칙: 기존 두음 유지, ❌는 덧붙이기)
 def apply(c, p):
     core = dict(c.get('core') or {})
@@ -92,7 +116,8 @@ def apply(c, p):
     core['warn'] = p.get('baseWarn', '')
     core['kbTag'] = '지난주'
     c['core'] = core
-    if p.get('detail'): c['detailHtml'] = p['detail']
+    c['detailHtml'] = ''
+    c['links'] = p.get('links', [])
 
 for cid, p in PATCH.items():
     if 'detailOnly' not in p:
@@ -102,8 +127,9 @@ for cid, p in PATCH.items():
 for cid in DETAIL:
     if cid not in PATCH:
         if cid not in by_id: raise SystemExit('detail id missing '+cid)
-        by_id[cid]['detailHtml'] = detail_html(cid)
-        PATCH[cid] = {'detailOnly': True, 'detail': by_id[cid]['detailHtml']}
+        by_id[cid]['detailHtml'] = ''
+        by_id[cid]['links'] = card_links(cid)
+        PATCH[cid] = {'detailOnly': True, 'detail': '', 'links': by_id[cid]['links']}
 
 
 # ---------- 학원 중요도(최상·상·중·하) ----------
@@ -157,7 +183,8 @@ helpers = """
 const IMP_MAP = """ + json.dumps(IMP_MAP, ensure_ascii=False) + """;
 const KB_PATCH = """ + patch_js + """;
 function applyKbPatch(c, p){
-  if(p.detail) c.detailHtml = p.detail;
+  c.detailHtml = p.detail || '';
+  c.links = p.links || [];
   if(p.detailOnly) return;
   const core = Object.assign({}, c.core||{});
   if(!core.one) core.one = c.def || '';
@@ -295,7 +322,7 @@ assert old_g in s, 'gichul'
 new_g = """    if(c.gichul && c.gichul.n){
       detail += `<div class="lbl">📝 기출 ${c.gichul.n}회 ${gcBadge(c,true)} — 이 문제들에 다 답할 수 있나?</div><ol class="gc-list">${(c.gichul.list||[]).map(q=>`<li><b>${q[0]}회 ${esc(q[1]||'')} ${q[2]}교시</b> ${esc(q[3]||'')}${(q[3]||'').length>=80?'…':''}</li>`).join('')}</ol>`;
     }
-    if(TB_MAP[c.id]) detail += `<div class="lbl">📘 깊게 읽기</div><a class="tb-link" href="${TB_MAP[c.id][1]}" target="_blank">${TB_MAP[c.id][0]} 열기 (구글 문서)</a>`;"""
+    if((c.links||[]).length) detail += `<div class="lbl">📘 교재 노트</div>${c.links.map(l=>`<a class="tb-link" href="${l[1]}" target="_blank">${esc(l[0])} 열기</a>`).join(' ')}`;"""
 s = s.replace(old_g, new_g, 1)
 s = s.replace("let readHide = false;", "const TB_MAP = " + json.dumps(TB_MAP, ensure_ascii=False) + ";\nlet readHide = false;", 1)
 s = s.replace(".reveal-btn {", """.gc-list { margin: 4px 0 0; padding-left: 20px; font-size: 12.5px; line-height: 1.5; color: #444441; }
