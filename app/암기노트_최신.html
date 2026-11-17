@@ -1643,7 +1643,8 @@ function importBackup(input){
 
 
 // ================= v18: 읽기 모드 · 정원 · 퀘스트 · 스트릭 =================
-const DATA_VER = 'v19s-20261117';
+const APP_VER = 'v19s2-20261117';
+const DATA_VER = 'v19s2-20261117';
 const CARDS_KEY = 'gisulsa_cards_v18';
 const PROG_KEY = 'gisulsa_prog_v1';
 let appMode = 'home';          // home | read | cards
@@ -1858,7 +1859,7 @@ function gardenOf(s){
 // ---------- 화면 ----------
 function modeBarHtml(){
   const b = (m,l) => `<button class="mode-btn ${appMode===m?'on':''}" onclick="setMode('${m}')">${l}</button>`;
-  return `<div class="mode-bar">${b('home','🏠 오늘')}${b('read','📖 읽기')}${b('cards','🗂 카드')}<button class="mode-btn upd-btn" onclick="pullUpdate(true)" title="새 내용 받기">🔄</button></div>`;
+  return `<div class="mode-bar">${b('home','🏠 오늘')}${b('read','📖 읽기')}${b('cards','🗂 카드')}<button class="mode-btn upd-btn" onclick="pullUpdate(true)" title="새 내용 받기">🔄</button></div><div style="text-align:right;font-size:11px;color:#999;margin:-4px 6px 4px">앱 버전 ${APP_VER}</div>`;
 }
 function setMode(m){ flushNote(); appMode = m; if(m==='read' && !readSubject) readSubject = todaySubs()[0] || subjectsWithCards()[0]; render(); window.scrollTo(0,0); }
 function goRead(s, f){ appMode = 'read'; if(s) readSubject = s; else if(!readSubject) readSubject = todaySubs()[0] || 'all'; if(f){ readFilter = f; if(f!=='all') readSubject = 'all'; } render(); window.scrollTo(0,0); }

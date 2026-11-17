@@ -439,6 +439,12 @@ s = s.replace(g3, "<div class=\"lbl\">📌 키워드 설명</div>${kbHtml(core, 
 g4 = "if(readView!=='full' && (core.kb||[]).length) detail +="
 assert g4 in s, 'g4'
 s = s.replace(g4, "if((core.kb||[]).length) detail +=", 1)
+
+# 11/17: 앱 버전 표시 (폰에서 어떤 파일을 열었는지 확인용)
+v1 = """title="새 내용 받기">🔄</button></div>`;"""
+assert v1 in s, 'v1'
+s = s.replace(v1, """title="새 내용 받기">🔄</button></div><div style="text-align:right;font-size:11px;color:#999;margin:-4px 6px 4px">앱 버전 ${APP_VER}</div>`;""", 1)
+s = s.replace("const DATA_VER = ", "const APP_VER = '" + DATA_VER_STR + "';\nconst DATA_VER = ", 1)
 open(out, 'w', encoding='utf-8').write(s)
 print('patched', len(patched), 'added', len(added))
 print('added:', ', '.join(added))
