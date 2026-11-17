@@ -80,7 +80,7 @@ def short_warn(w):
     return w2 if len(w2) <= 90 else w2[:88] + '…'
 def patch_for(t):
     t = dict(t); t['warn'] = ''
-    p = {'kw': t.get('kw', ''), 'kb': [list(x) for x in t.get('kb', [])], 'mnem': t.get('mnem', ''), 'warn': t.get('warn', ''), 'detail': '', 'links': card_links(t['id'])}
+    p = {'kw': t.get('kw', ''), 'kb': [list(x) for x in t.get('kb', [])], 'mnem': t.get('mnem', ''), 'warn': t.get('warn', ''), 'detail': '', 'links': card_links(t['id']), 'pair': t.get('pair', '')}
     return p
 
 PATCH = {}
@@ -94,7 +94,7 @@ for t in TOPICS:
              "id": t['id'], "title": t['title'], "en": t.get('en', ''), "def": t.get('defn', ''),
              "features": [], "rows": [], "note": "", "subject": t['subject'],
              "core": {"one": t.get('defn', ''), "mnem": t.get('mnem', ''), "warn": t.get('warn', '')}}
-        c['rows'] = [{"div": r[0], "comp": r[1], "desc": ""} for r in t.get('kb', [])]
+        c['rows'] = [{"div": r[0], "comp": r[1], "desc": (r[2] if len(r) > 2 else "")} for r in t.get('kb', [])]
         c['features'] = [x.strip() for x in re.split(r'[·,]', t.get('kw', '')) if x.strip()][:6]
         cards.append(c); by_id[c['id']] = c; added.append(t['title'])
     else:
@@ -115,6 +115,7 @@ def apply(c, p):
         core['mnem'] = p['mnem']
     core['warn'] = p.get('baseWarn', '')
     core['kbTag'] = '지난주'
+    core['pair'] = p.get('pair', '')
     c['core'] = core
     c['detailHtml'] = ''
     c['links'] = p.get('links', [])
@@ -192,6 +193,7 @@ function applyKbPatch(c, p){
   if(p.mnem && !core.mnem) core.mnem = p.mnem;
   core.warn = p.baseWarn || '';
   core.kbTag = '지난주';
+  core.pair = p.pair || '';
   c.core = core;
 }
 let readView = 'short';   // mini 초간단(두음만) · short 간단(핵심어+두음, 기본) · full 길게(+키워드 표·❌)
@@ -205,7 +207,8 @@ try{ readHide = localStorage.getItem('gisulsa_hide')==='1'; }catch(e){}
 function revealCard(id){ revealed[id] = true; const c = cards.find(x=>x.id===id); const el = document.getElementById('rc_'+id); if(el && c) el.outerHTML = rcardHtml(c); }
 function kbHtml(core){
   if(!core.kb || !core.kb.length) return '';
-  return `<table class="kb-tbl">${core.kb.map(r=>`<tr><th>${esc(r[0])}</th><td>${esc(r[1])}</td></tr>`).join('')}</table>`;
+  const three = core.kb.some(r=>r[2]);
+  return `<table class="kb-tbl">${core.kb.map(r=>`<tr><th>${esc(r[0])}</th><td><b>${esc(r[1])}</b>${three && r[2] ? `<div class="kb-desc">${esc(r[2])}</div>` : ''}</td></tr>`).join('')}</table>`;
 }
 """
 anchor = "// ---------- 평가 ----------"
@@ -279,6 +282,9 @@ css = """
 .md-detail ul { padding-left: 18px; margin: 4px 0; }
 .md-detail blockquote { margin: 6px 0; padding: 6px 10px; background: #faf9f5; border-left: 3px solid #d3d1c7; }
 .md-wrap { margin-top: 10px; } .md-wrap summary { cursor: pointer; font-weight: 700; color: #5f5e5a; font-size: 13px; padding: 6px 0; }
+.kb-desc { font-weight: 400; color: #6b6a64; font-size: 12.5px; margin-top: 2px; }
+.kb-tbl td b { font-weight: 700; }
+.pair { font-size: 13px; line-height: 1.55; background: #f3f1fa; border-radius: 8px; padding: 7px 10px; color: #3b3560; }
 .reveal-btn { display: block; width: 100%; margin-top: 10px; border: 1px dashed #b4b2a9; background: #faf9f5; color: #444441; border-radius: 10px; padding: 12px; font-size: 14px; font-weight: 700; font-family: inherit; }
 """
 s = s.replace("</style>", css + "</style>", 1)
@@ -322,6 +328,7 @@ assert old_g in s, 'gichul'
 new_g = """    if(c.gichul && c.gichul.n){
       detail += `<div class="lbl">📝 기출 ${c.gichul.n}회 ${gcBadge(c,true)} — 이 문제들에 다 답할 수 있나?</div><ol class="gc-list">${(c.gichul.list||[]).map(q=>`<li><b>${q[0]}회 ${esc(q[1]||'')} ${q[2]}교시</b> ${esc(q[3]||'')}${(q[3]||'').length>=80?'…':''}</li>`).join('')}</ol>`;
     }
+    if(core.pair) detail += `<div class="lbl">🔀 헷갈리는 짝</div><div class="pair">${esc(core.pair)}</div>`;
     if((c.links||[]).length) detail += `<div class="lbl">📘 교재 노트</div>${c.links.map(l=>`<a class="tb-link" href="${l[1]}" target="_blank">${esc(l[0])} 열기</a>`).join(' ')}`;"""
 s = s.replace(old_g, new_g, 1)
 s = s.replace("let readHide = false;", "const TB_MAP = " + json.dumps(TB_MAP, ensure_ascii=False) + ";\nlet readHide = false;", 1)
@@ -367,10 +374,10 @@ s = s.replace(".reveal-btn {", ".upd-btn { flex: 0 0 auto !important; width: 52p
 # ---------- 자세히 맨 위: 키워드 표 · 내가 틀린 것 ----------
 old_det = "  if(open){\n    if(c.type==='compare'){"
 assert old_det in s, 'det'
-s = s.replace(old_det, "  if(open){\n    if(readView!=='full' && (core.kb||[]).length) detail += `<div class=\"lbl\">📌 외울 것</div>${kbHtml(core)}`;\n    if(readView!=='full' && core.warn) detail += `<div class=\"lbl\">❌ 헷갈림 · 내가 틀린 것</div><div class=\"r-warn\" style=\"margin-top:2px\">${esc(core.warn)}</div>`;\n    if(c.type==='compare'){", 1)
+s = s.replace(old_det, "  if(open){\n    if(readView!=='full' && (core.kb||[]).length) detail += `<div class=\"lbl\">📌 키워드 설명</div>${kbHtml(core)}`;\n    if(readView!=='full' && core.warn) detail += `<div class=\"lbl\">❌ 헷갈림 · 내가 틀린 것</div><div class=\"r-warn\" style=\"margin-top:2px\">${esc(core.warn)}</div>`;\n    if(c.type==='compare'){", 1)
 s = s.replace(".reveal-btn {", ".warn-chip { display: inline-block; margin-top: 7px; background: #fdeceb; color: #8f2a22; border-radius: 8px; padding: 3px 8px; font-size: 12px; font-weight: 700; }\n.reveal-btn {", 1)
 
-# ---------- 읽기 자세히: 새 카드는 📌 외울 것 표가 곧 구성요소라 중복 표시 안 함 ----------
+# ---------- 읽기 자세히: 새 카드는 📌 키워드 설명 표가 곧 구성요소라 중복 표시 안 함 ----------
 of = "      if((c.features||[]).length) detail += `<div class=\"lbl\">특징</div>"
 assert of in s, 'feat'
 s = s.replace(of, "      const kbNew = c.id.indexOf('kb_')===0;\n      if(!kbNew && (c.features||[]).length) detail += `<div class=\"lbl\">특징</div>", 1)
