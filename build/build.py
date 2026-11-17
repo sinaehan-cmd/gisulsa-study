@@ -80,7 +80,7 @@ def short_warn(w):
     return w2 if len(w2) <= 90 else w2[:88] + '…'
 def patch_for(t):
     t = dict(t); t['warn'] = ''
-    p = {'kw': t.get('kw', ''), 'kb': [list(x) for x in t.get('kb', [])], 'mnem': t.get('mnem', ''), 'warn': t.get('warn', ''), 'detail': '', 'links': card_links(t['id']), 'pair': t.get('pair', '')}
+    p = {'kw': t.get('kw', ''), 'kb': [list(x) for x in t.get('kb', [])], 'mnem': t.get('mnem', ''), 'warn': t.get('warn', ''), 'detail': '', 'links': card_links(t['id']), 'pair': t.get('pair', ''), 'defn': ('' if t.get('new') else t.get('defn', '')), 'fmt': t.get('fmt', 0)}
     return p
 
 PATCH = {}
@@ -116,13 +116,15 @@ def apply(c, p):
     core['warn'] = p.get('baseWarn', '')
     core['kbTag'] = '지난주'
     core['pair'] = p.get('pair', '')
+    core['fmt'] = p.get('fmt', 0)
+    if p.get('defn'): c['def'] = p['defn']
     c['core'] = core
     c['detailHtml'] = ''
     c['links'] = p.get('links', [])
 
 for cid, p in PATCH.items():
     if 'detailOnly' not in p:
-        p['baseWarn'] = '' if cid.startswith('kb_') else ((by_id[cid].get('core') or {}).get('warn') or '')
+        p['baseWarn'] = '' if (cid.startswith('kb_') or p.get('pair')) else ((by_id[cid].get('core') or {}).get('warn') or '')
 for cid, p in PATCH.items():
     apply(by_id[cid], p)
 for cid in DETAIL:
@@ -194,6 +196,8 @@ function applyKbPatch(c, p){
   core.warn = p.baseWarn || '';
   core.kbTag = '지난주';
   core.pair = p.pair || '';
+  core.fmt = p.fmt || 0;
+  if(p.defn) c.def = p.defn;
   c.core = core;
 }
 let readView = 'short';   // mini 초간단(두음만) · short 간단(핵심어+두음, 기본) · full 길게(+키워드 표·❌)
@@ -410,6 +414,17 @@ s = s.replace(w2, "    { const pr = [core.pair, core.warn].filter(Boolean).join(
 w3 = "    ${core.warn ? (readView==='full' ? `<div class=\"r-warn\">❌ ${esc(core.warn)}</div>` : `<span class=\"warn-chip\">❌ 헷갈림·틀린 것 있음 — 자세히</span>`) : ''}"
 assert w3 in s, 'w3'
 s = s.replace(w3, "", 1)
+
+# 11/17: fmt=3 정식 카드는 옛 표·특징·비교표·특기사항 숨김
+f1 = "      const kbNew = c.id.indexOf('kb_')===0 || !!core._auto;"
+assert f1 in s, 'f1'
+s = s.replace(f1, "      const kbNew = c.id.indexOf('kb_')===0 || !!core._auto || core.fmt===3;", 1)
+f2 = "    if(c.type==='compare'){"
+assert f2 in s, 'f2'
+s = s.replace(f2, "    if(c.type==='compare' && core.fmt!==3){", 1)
+f3 = "    if(c.note) detail += `<div class=\"lbl\">특기사항</div>"
+assert f3 in s, 'f3'
+s = s.replace(f3, "    if(c.note && core.fmt!==3) detail += `<div class=\"lbl\">특기사항</div>", 1)
 open(out, 'w', encoding='utf-8').write(s)
 print('patched', len(patched), 'added', len(added))
 print('added:', ', '.join(added))

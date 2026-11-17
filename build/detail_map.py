@@ -65,4 +65,12 @@ DETAIL = {
  'kb_aigov': [('2026-11-16_AI_RAG윤리LLM보안_핵심교재.md', ['## Ⅲ. 인공지능', '### 1. 사람말']), ('2026-11-16_AI_FT·RAG·윤리·거버넌스_GPT보충.md', ['# ⅩⅤ.']), ('2026-11-16_AI_RAG윤리LLM보안_핵심교재.md', ['## Ⅲ. 인공지능', '### 3. AI 거버넌스'])],
  # ---- 11/16 자세히 보강 (드라이브 02_정리MD/네트워크) ----
  'net_tcpcong': [('net_weekly_0107.md', ['# ⑤ TCP 혼잡제어'])],
+ # ---- 11/17 최상·상 정식 변환: 교재 링크 ----
+ 'net2_protocol': [('net_weekly_0107.md', ['# ① 네트워크 프로토콜'])],
+ 'net2_dv': [('net_weekly_0107.md', ['# ② 거리벡터'])],
+ 'net2_handshake': [('net_weekly_0107.md', ['# ③ TCP 4-way']), ('net_weekly_0107.md', ['# ④ TCP 3-way'])],
+ 'net2_slidewin': [('net_weekly_0107.md', ['# ⑦ Sliding'])],
+ 'net2_oran': [('net_weekly_0107.md', ['# ⑧ Open RAN'])],
+ 'sec_cmp_isms': [('sec_tb.md', ['# F. 유출사고형'])],
+ 'sec_ismsp_criteria': [('sec_tb.md', ['# F. 유출사고형'])],
 }

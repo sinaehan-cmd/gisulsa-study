@@ -145,8 +145,6 @@ dict(id='bsc', subject='IT경영', title='BSC',
   kw='재무·비재무 관점 · KPI 전환 · 균형적 성과관리 기법',
   warn='BCS(X) → BSC',
   kb=[('4관점','재무 · 고객 · 내부프로세스 · 학습과성장'),('구분','IT-ROI = 통합 / BSC = 균형')]),
-dict(id='esg', subject='IT경영', title='ESG',
-  kw='지속가능성 · 비재무 · 환경·사회·지배구조 · 평가 지표'),
 dict(id='bcm', subject='IT경영', title='BCM',
   kw='위기에도 업무 지속 · 정책·절차 수립·이행 · 관리체계',
   mnem='경·대·재·복 (재난경감·비상대응·업무재개·복원)',
@@ -154,8 +152,6 @@ dict(id='bcm', subject='IT경영', title='BCM',
   kb=[('관계','BCM = 우산 / BIA(분석) → BCP(계획) → DRS(시스템)'),
       ('지표','RTO = 얼마 만에(시간) · RPO = 어느 시점까지(데이터) · MTD = 최대 허용 중단'),
       ('DRS','Mirror → Hot → Warm → Cold')]),
-dict(id='ax', subject='IT경영', title='AX',
-  mnem='전·진·인·파·모·확 (전략수립·현황진단·인프라구축·파일럿·모델개발·성과측정및확산)'),
 dict(id='design', subject='IT경영', title='디자인씽킹',
   mnem='공·정·아·프·테 (공감·정의·아이디어·프로토타입·테스트)'),
 # ---------------- SW ----------------
@@ -553,3 +549,9 @@ dict(id='kb_aigov', new=True, imp='최상', subject='AI', title='AI윤리 및 AI
       ('EU AI Act','금지 · 고위험 · 제한 · 최소','위험 기반 4단계'),
       ('대응 4단(학원)','식별 → 조직 → 프로세스 → 증빙','')]),
 ]
+
+# 11/17 최상·상 v18 카드 57장 정식 변환
+from kb_v18_a import TOPICS_A
+from kb_v18_b import TOPICS_B
+from kb_v18_c import TOPICS_C
+TOPICS += TOPICS_A + TOPICS_B + TOPICS_C
