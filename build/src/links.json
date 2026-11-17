@@ -1,6 +1,18 @@
 {
-  "2026-11-16_AI_FT·RAG·윤리·거버넌스_GPT보충.md": ["AI 보충교재 11/16 (파인튜닝·RAG·윤리)", "https://drive.google.com/file/d/12XR85_wJRTP4hAvLmqIz1UbtyvI7L_b4/view"],
-  "2026-11-16_AI_RAG윤리LLM보안_핵심교재.md": ["AI 핵심교재 11/16 (RAG·AI윤리·LLM보안)", "https://drive.google.com/file/d/1D7KohFtJTh80-ePV4ugfnxk6Z645lCK6/view"],
-  "caos_all.md": ["CAOS 통합 노트 (깃)", "https://github.com/sinaehan-cmd/gisulsa-study/blob/main/build/src/caos_all.md"],
-  "itsm_sla.md": ["ITSM·SLA 정리 (깃)", "https://github.com/sinaehan-cmd/gisulsa-study/blob/main/build/src/itsm_sla.md"]
+ "2026-11-16_AI_FT·RAG·윤리·거버넌스_GPT보충.md": [
+  "AI 보충교재 11/16 (파인튜닝·RAG·윤리)",
+  "https://drive.google.com/file/d/12XR85_wJRTP4hAvLmqIz1UbtyvI7L_b4/view"
+ ],
+ "2026-11-16_AI_RAG윤리LLM보안_핵심교재.md": [
+  "AI 핵심교재 11/16 (RAG·AI윤리·LLM보안)",
+  "https://drive.google.com/file/d/1D7KohFtJTh80-ePV4ugfnxk6Z645lCK6/view"
+ ],
+ "caos_all.md": [
+  "CAOS 통합 노트 (드라이브)",
+  "https://docs.google.com/document/d/1xP8dC4i4VWcCzIgH2jsYeFJY1dQ7so3COFaDZvhWyDQ/edit"
+ ],
+ "itsm_sla.md": [
+  "ITSM·SLA 정리 (드라이브)",
+  "https://docs.google.com/document/d/1b2yX78tlyUOpqvdx_9WbWlRAAoci9F3WueSb9aJI8C0/edit"
+ ]
 }
