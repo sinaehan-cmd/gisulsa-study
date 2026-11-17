@@ -80,7 +80,7 @@ def short_warn(w):
     return w2 if len(w2) <= 90 else w2[:88] + '…'
 def patch_for(t):
     t = dict(t); t['warn'] = ''
-    p = {'kw': t.get('kw', ''), 'kb': [list(x) for x in t.get('kb', [])], 'mnem': t.get('mnem', ''), 'warn': t.get('warn', ''), 'detail': '', 'links': card_links(t['id']), 'pair': t.get('pair', ''), 'defn': ('' if t.get('new') else t.get('defn', '')), 'fmt': t.get('fmt', 0)}
+    p = {'kw': t.get('kw', ''), 'kb': [list(x) for x in t.get('kb', [])], 'mnem': t.get('mnem', ''), 'warn': t.get('warn', ''), 'detail': '', 'links': card_links(t['id']), 'pair': t.get('pair', ''), 'defn': t.get('defn', ''), 'title': t.get('title', ''), 'en': t.get('en', ''), 'fmt': t.get('fmt', 0), 'cmp': t.get('cmp', [])}
     return p
 
 PATCH = {}
@@ -116,8 +116,11 @@ def apply(c, p):
     core['warn'] = p.get('baseWarn', '')
     core['kbTag'] = '지난주'
     core['pair'] = p.get('pair', '')
+    core['cmp'] = p.get('cmp', [])
     core['fmt'] = p.get('fmt', 0)
     if p.get('defn'): c['def'] = p['defn']
+    if p.get('title'): c['title'] = p['title']
+    if p.get('en'): c['en'] = p['en']
     c['core'] = core
     c['detailHtml'] = ''
     c['links'] = p.get('links', [])
@@ -196,8 +199,11 @@ function applyKbPatch(c, p){
   core.warn = p.baseWarn || '';
   core.kbTag = '지난주';
   core.pair = p.pair || '';
+  core.cmp = p.cmp || [];
   core.fmt = p.fmt || 0;
   if(p.defn) c.def = p.defn;
+  if(p.title) c.title = p.title;
+  if(p.en) c.en = p.en;
   c.core = core;
 }
 let readView = 'short';   // mini 초간단(두음만) · short 간단(핵심어+두음, 기본) · full 길게(+키워드 표·❌)
@@ -457,6 +463,17 @@ import patch_nav
 for _o, _n in patch_nav.PAIRS:
     assert _o in s, 'nav ' + _o[:30]
     s = s.replace(_o, _n, 1)
+
+# 11/17 밤: 비교 카드 = 머리줄(구분 | A | B | C) + 항목별 정렬
+k1 = "function kbHtml(core, desc){\n  if(!core.kb || !core.kb.length) return '';"
+assert k1 in s, 'k1'
+s = s.replace(k1, k1 + "\n  if((core.cmp||[]).length) return `<table class=\"kb-tbl cmp-tbl\"><tr><th>구분</th>${core.cmp.map(h=>`<th class=\"cmp-h\">${esc(h)}</th>`).join('')}</tr>${core.kb.map(r=>`<tr><th>${esc(r[0])}</th>${core.cmp.map((h,i)=>`<td>${esc(r[i+1]||'')}</td>`).join('')}</tr>`).join('')}</table>`;", 1)
+k2 = ".kb-desc {"
+assert k2 in s, 'k2'
+s = s.replace(k2, ".cmp-tbl th.cmp-h { color:#2c2c2a; border-bottom:2px solid #d9d5c7; white-space:normal; }\n.cmp-tbl td { padding-right:8px; vertical-align:top; }\n.kb-desc {", 1)
+k3 = "c.type==='compare' ? '비교 키워드'"
+assert k3 in s, 'k3'
+s = s.replace(k3, "(c.type==='compare' || (core.cmp||[]).length) ? '비교표'", 1)
 open(out, 'w', encoding='utf-8').write(s)
 print('patched', len(patched), 'added', len(added))
 print('added:', ', '.join(added))

@@ -80,4 +80,9 @@ DETAIL = {
  'kb_promptinj': [('2026-11-17_AI_LLM보안.md', ['## Ⅱ. LLM 주요', '### 3. 프롬프트']), ('2026-11-17_AI_LLM보안.md', ['## Ⅱ. LLM 주요', '### 4. 포이즈닝'])],
  'kb_mcpsec': [('2026-11-17_AI_LLM보안.md', ['## Ⅲ. RAG', '### 3. MCP'])],
  'sec_ddos': [('2026-11-17_AI_LLM운영·시스템자원.md', ['## Ⅴ. 보안과의'])],
+ 'kb_rag': [('2026-11-16_AI_RAG윤리LLM보안_핵심교재.md', ['## Ⅰ. RAG'])],
+ 'kb_ft': [('2026-11-16_AI_RAG윤리LLM보안_핵심교재.md', ['## Ⅰ. RAG'])],
+ 'kb_advrag': [('2026-11-16_AI_RAG윤리LLM보안_핵심교재.md', ['## Ⅱ. Advanced'])],
+ 'kb_modrag': [('2026-11-16_AI_RAG윤리LLM보안_핵심교재.md', ['## Ⅱ. Advanced'])],
+ 'kb_agenticrag': [('2026-11-16_AI_FT·RAG·윤리·거버넌스_GPT보충.md', ['# Ⅻ. Agentic RAG'])],
 }
