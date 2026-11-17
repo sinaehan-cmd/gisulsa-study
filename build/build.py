@@ -384,6 +384,32 @@ s = s.replace(of, "      const kbNew = c.id.indexOf('kb_')===0;\n      if(!kbNew
 orow = "      if((c.rows||[]).length) detail += `<div class=\"lbl\">구성요소</div>"
 assert orow in s, 'rows'
 s = s.replace(orow, "      if(!kbNew && (c.rows||[]).length) detail += `<div class=\"lbl\">구성요소</div>", 1)
+
+# ---------- 300장 자동 변환: kb 없는 카드는 구성요소 표·특징으로 새 화면 ----------
+oc = "function rcardHtml(c){\n  const core = getCore(c);"
+assert oc in s, 'core'
+s = s.replace(oc, "function rcardHtml(c){\n  const core = withAuto(c, getCore(c));", 1)
+s = s.replace("let readHide = false;", """function withAuto(c, core){
+  if((core.kb||[]).length || !(c.rows||[]).length) return core;
+  const kb = c.rows.filter(r=>r && (r.comp||r.div)).map(r=>[r.div||'', r.comp||'', r.desc||'']);
+  const kw = core.kw || [].concat(c.features||[], c.rows.map(r=>r.comp).filter(Boolean)).join(' · ');
+  return Object.assign({}, core, {kb: kb, kw: kw, _auto: true});
+}
+let readHide = false;""", 1)
+ok = "      const kbNew = c.id.indexOf('kb_')===0;"
+assert ok in s, 'kbnew'
+s = s.replace(ok, "      const kbNew = c.id.indexOf('kb_')===0 || !!core._auto;", 1)
+
+# 11/17: v18 warn은 '헷갈리는 짝'으로만 (오답 표시·앞면 칩 제거)
+w1 = "    if(readView!=='full' && core.warn) detail += `<div class=\"lbl\">❌ 헷갈림 · 내가 틀린 것</div><div class=\"r-warn\" style=\"margin-top:2px\">${esc(core.warn)}</div>`;"
+assert w1 in s, 'w1'
+s = s.replace(w1, "", 1)
+w2 = "    if(core.pair) detail += `<div class=\"lbl\">🔀 헷갈리는 짝</div><div class=\"pair\">${esc(core.pair)}</div>`;"
+assert w2 in s, 'w2'
+s = s.replace(w2, "    { const pr = [core.pair, core.warn].filter(Boolean).join(' / '); if(pr) detail += `<div class=\"lbl\">🔀 헷갈리는 짝</div><div class=\"pair\">${esc(pr)}</div>`; }", 1)
+w3 = "    ${core.warn ? (readView==='full' ? `<div class=\"r-warn\">❌ ${esc(core.warn)}</div>` : `<span class=\"warn-chip\">❌ 헷갈림·틀린 것 있음 — 자세히</span>`) : ''}"
+assert w3 in s, 'w3'
+s = s.replace(w3, "", 1)
 open(out, 'w', encoding='utf-8').write(s)
 print('patched', len(patched), 'added', len(added))
 print('added:', ', '.join(added))

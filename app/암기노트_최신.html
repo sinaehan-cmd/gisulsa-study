@@ -1643,7 +1643,7 @@ function importBackup(input){
 
 
 // ================= v18: 읽기 모드 · 정원 · 퀘스트 · 스트릭 =================
-const DATA_VER = 'v19p-20261117';
+const DATA_VER = 'v19q-20261117';
 const CARDS_KEY = 'gisulsa_cards_v18';
 const PROG_KEY = 'gisulsa_prog_v1';
 let appMode = 'home';          // home | read | cards
@@ -1737,6 +1737,12 @@ function pullUpdate(manual){
     if(added || touched){ render(); showToast('✅ 새 카드 '+added+'장 · 보강 '+touched+'장 받았어요'); }
     else if(manual) showToast('이미 최신이에요 👍');
   }).catch(e=>{ if(manual) showToast('인터넷 연결을 확인해 주세요'); });
+}
+function withAuto(c, core){
+  if((core.kb||[]).length || !(c.rows||[]).length) return core;
+  const kb = c.rows.filter(r=>r && (r.comp||r.div)).map(r=>[r.div||'', r.comp||'', r.desc||'']);
+  const kw = core.kw || [].concat(c.features||[], c.rows.map(r=>r.comp).filter(Boolean)).join(' · ');
+  return Object.assign({}, core, {kb: kb, kw: kw, _auto: true});
 }
 let readHide = false;
 let revealed = {};
@@ -1931,7 +1937,7 @@ function readProgHtml(){
   return `<span>오늘 ${n}/${pool.length}</span><div class="q-bar"><div class="q-fill" style="width:${pct}%"></div></div><span>${pct}%</span>`;
 }
 function rcardHtml(c){
-  const core = getCore(c);
+  const core = withAuto(c, getCore(c));
   const p = cp(c.id);
   const lv = p.lv||0;
   const t = localDate();
@@ -1941,13 +1947,13 @@ function rcardHtml(c){
   let detail = '';
   if(open){
     if(readView!=='full' && (core.kb||[]).length) detail += `<div class="lbl">📌 키워드 설명</div>${kbHtml(core)}`;
-    if(readView!=='full' && core.warn) detail += `<div class="lbl">❌ 헷갈림 · 내가 틀린 것</div><div class="r-warn" style="margin-top:2px">${esc(core.warn)}</div>`;
+
     if(c.type==='compare'){
       detail += `<div class="lbl">비교표</div><table class="mini"><tr><th>관점</th><th>${esc(c.itemAName||'A')}</th><th>${esc(c.itemBName||'B')}</th></tr>${(c.compareRows||[]).map(r=>`<tr><td>${esc(r.aspect)}</td><td>${esc(r.a)}</td><td>${esc(r.b)}</td></tr>`).join('')}</table>`;
     } else {
       if(c.def) detail += `<div class="lbl">정의</div><div>${esc(c.def)}</div>`;
       else if(core.one) detail += `<div class="lbl">정의</div><div>${esc(core.one)}</div>`;
-      const kbNew = c.id.indexOf('kb_')===0;
+      const kbNew = c.id.indexOf('kb_')===0 || !!core._auto;
       if(!kbNew && (c.features||[]).length) detail += `<div class="lbl">특징</div><div class="chip-row">${c.features.map(f=>`<span class="chip">${esc(f)}</span>`).join('')}</div>`;
       if(!kbNew && (c.rows||[]).length) detail += `<div class="lbl">구성요소</div><table class="mini"><tr><th>구분</th><th>구성요소</th><th>설명</th></tr>${c.rows.map(r=>`<tr><td>${esc(r.div)}</td><td>${esc(r.comp)}</td><td>${esc(r.desc)}</td></tr>`).join('')}</table>`;
       if(c.diagram) detail += `<div class="lbl">구성도</div><img class="diagram-img" src="${c.diagram}"/>`;
@@ -1957,7 +1963,7 @@ function rcardHtml(c){
     if(c.gichul && c.gichul.n){
       detail += `<div class="lbl">📝 기출 ${c.gichul.n}회 ${gcBadge(c,true)} — 이 문제들에 다 답할 수 있나?</div><ol class="gc-list">${(c.gichul.list||[]).map(q=>`<li><b>${q[0]}회 ${esc(q[1]||'')} ${q[2]}교시</b> ${esc(q[3]||'')}${(q[3]||'').length>=80?'…':''}</li>`).join('')}</ol>`;
     }
-    if(core.pair) detail += `<div class="lbl">🔀 헷갈리는 짝</div><div class="pair">${esc(core.pair)}</div>`;
+    { const pr = [core.pair, core.warn].filter(Boolean).join(' / '); if(pr) detail += `<div class="lbl">🔀 헷갈리는 짝</div><div class="pair">${esc(pr)}</div>`; }
     if((c.links||[]).length) detail += `<div class="lbl">📘 교재 노트</div>${c.links.map(l=>`<a class="tb-link" href="${l[1]}" target="_blank">${esc(l[0])} 열기</a>`).join(' ')}`;
     detail += `<div style="margin-top:8px"><button class="more-btn" onclick="openCardFromRead('${c.id}')">🗂 카드 화면에서 열기 · 수정</button></div>`;
   }
@@ -1967,7 +1973,7 @@ function rcardHtml(c){
     ${readView!=='mini' ? (core.kw ? `<div class="r-kw">🔑 ${esc(core.kw)}</div>` : (core.one ? `<div class="r-one">${esc(core.one)}</div>` : '')) : ''}
     ${core.mnem ? `<div class="r-mnem">🎵 ${esc(core.mnem)}</div>` : (readView==='mini' && core.one ? `<div class="r-one">${esc(core.one)}</div>` : '')}
     ${readView==='full' ? kbHtml(core) : ''}
-    ${core.warn ? (readView==='full' ? `<div class="r-warn">❌ ${esc(core.warn)}</div>` : `<span class="warn-chip">❌ 헷갈림·틀린 것 있음 — 자세히</span>`) : ''}`}
+`}
     <div class="r-actions">
       <button class="rate ${todayR===1?'on1':''}" onclick="onRate('${c.id}',1)">🌱 몰라</button>
       <button class="rate ${todayR===2?'on2':''}" onclick="onRate('${c.id}',2)">🌿 애매</button>
