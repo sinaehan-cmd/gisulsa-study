@@ -451,6 +451,12 @@ sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
 import patch_order
 assert patch_order.OLD in s, 'order'
 s = s.replace(patch_order.OLD, patch_order.NEW, 1)
+
+# 11/17: 뒤로 가기 (build/patch_nav.py)
+import patch_nav
+for _o, _n in patch_nav.PAIRS:
+    assert _o in s, 'nav ' + _o[:30]
+    s = s.replace(_o, _n, 1)
 open(out, 'w', encoding='utf-8').write(s)
 print('patched', len(patched), 'added', len(added))
 print('added:', ', '.join(added))

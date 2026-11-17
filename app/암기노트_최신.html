@@ -1643,8 +1643,8 @@ function importBackup(input){
 
 
 // ================= v18: 읽기 모드 · 정원 · 퀘스트 · 스트릭 =================
-const APP_VER = 'v19t-20261117';
-const DATA_VER = 'v19t-20261117';
+const APP_VER = 'v19u-20261117';
+const DATA_VER = 'v19u-20261117';
 const CARDS_KEY = 'gisulsa_cards_v18';
 const PROG_KEY = 'gisulsa_prog_v1';
 let appMode = 'home';          // home | read | cards
@@ -1861,8 +1861,8 @@ function modeBarHtml(){
   const b = (m,l) => `<button class="mode-btn ${appMode===m?'on':''}" onclick="setMode('${m}')">${l}</button>`;
   return `<div class="mode-bar">${b('home','🏠 오늘')}${b('read','📖 읽기')}${b('cards','🗂 카드')}<button class="mode-btn upd-btn" onclick="pullUpdate(true)" title="새 내용 받기">🔄</button></div><div style="text-align:right;font-size:11px;color:#999;margin:-4px 6px 4px">앱 버전 ${APP_VER}</div>`;
 }
-function setMode(m){ flushNote(); appMode = m; if(m==='read' && !readSubject) readSubject = todaySubs()[0] || subjectsWithCards()[0]; render(); window.scrollTo(0,0); }
-function goRead(s, f){ appMode = 'read'; if(s) readSubject = s; else if(!readSubject) readSubject = todaySubs()[0] || 'all'; if(f){ readFilter = f; if(f!=='all') readSubject = 'all'; } render(); window.scrollTo(0,0); }
+function setMode(m){ flushNote(); backBtn(false); if(m!==appMode) navPush(); appMode = m; if(m==='read' && !readSubject) readSubject = todaySubs()[0] || subjectsWithCards()[0]; render(); window.scrollTo(0,0); }
+function goRead(s, f){ backBtn(false); if(appMode!=='read') navPush(); appMode = 'read'; if(s) readSubject = s; else if(!readSubject) readSubject = todaySubs()[0] || 'all'; if(f){ readFilter = f; if(f!=='all') readSubject = 'all'; } render(); window.scrollTo(0,0); }
 
 function renderHome(){
   const app = document.getElementById('app');
@@ -2025,10 +2025,30 @@ function toggleDetail(id){
   const el = document.getElementById('rc_'+id);
   if(el && c) el.outerHTML = rcardHtml(c);
 }
+let navStack = [];
+function navPush(rec){ navStack.push(rec || {mode: appMode, y: window.scrollY}); try{ history.pushState({n: navStack.length}, ''); }catch(e){} }
+function backBtn(on){
+  let b = document.getElementById('backFab');
+  if(!on){ if(b) b.remove(); return; }
+  if(!b){ b = document.createElement('button'); b.id = 'backFab'; b.textContent = '← 읽기로 돌아가기';
+    b.style.cssText = 'position:fixed;left:50%;bottom:18px;transform:translateX(-50%);z-index:50;padding:12px 20px;border-radius:24px;border:0;background:#2b2b2b;color:#fff;font-size:15px;box-shadow:0 4px 12px rgba(0,0,0,.25)';
+    b.onclick = ()=>{ try{ history.back(); }catch(e){ navBack(); } };
+    document.body.appendChild(b); }
+}
+function navBack(){
+  const s = navStack.pop(); backBtn(false);
+  if(!s){ if(appMode!=='home'){ appMode = 'home'; render(); window.scrollTo(0,0); } return; }
+  appMode = s.mode; render();
+  if(s.id){ const el = document.getElementById('rc_'+s.id); if(el) el.scrollIntoView({block:'center'}); else window.scrollTo(0, s.y||0); }
+  else window.scrollTo(0, s.y||0);
+}
+window.addEventListener('popstate', navBack);
 function openCardFromRead(id){
+  navPush({mode: 'read', y: window.scrollY, id: id});
   appMode = 'cards';
   jumpToRelated(id);
   window.scrollTo(0,0);
+  backBtn(true);
 }
 let _popT = null;
 function popEmoji(e){
