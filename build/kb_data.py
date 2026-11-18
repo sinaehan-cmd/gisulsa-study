@@ -468,3 +468,6 @@ from kb_v18_e import TOPICS_E, TOPICS_E2
 TOPICS += TOPICS_E + TOPICS_E2
 from kb_ai_split import TOPICS_AI
 TOPICS += TOPICS_AI
+# 11/18 저녁 저장 — 매일 보강 10장
+from kb_v18_f import TOPICS_F
+TOPICS += TOPICS_F
