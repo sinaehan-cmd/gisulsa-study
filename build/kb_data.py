@@ -399,3 +399,6 @@ TOPICS += TOPICS_G_NEW + TOPICS_G
 # 11/20 저녁 저장 — 오늘 공부 카드(3칸 정식 13 + 새로 5) + 매일 보강 10장
 from kb_v18_h import TOPICS_H_NEW, TOPICS_H
 TOPICS += TOPICS_H_NEW + TOPICS_H
+# 11/21 저녁 저장 — 매일 보강 10장 (학원 배지 없는 v18 카드, v18 원본 기준)
+from kb_v18_i import TOPICS_I
+TOPICS += TOPICS_I
