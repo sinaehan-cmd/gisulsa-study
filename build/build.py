@@ -81,6 +81,7 @@ def short_warn(w):
 def patch_for(t):
     t = dict(t); t['warn'] = ''
     p = {'kw': t.get('kw', ''), 'kb': [list(x) for x in t.get('kb', [])], 'mnem': t.get('mnem', ''), 'warn': t.get('warn', ''), 'detail': '', 'links': card_links(t['id']), 'pair': t.get('pair', ''), 'defn': t.get('defn', ''), 'title': t.get('title', ''), 'en': t.get('en', ''), 'fmt': t.get('fmt', 0), 'cmp': t.get('cmp', [])}
+    if t.get('related'): p['related'] = list(t['related'])
     return p
 
 PATCH = {}
@@ -124,11 +125,15 @@ def apply(c, p):
     c['core'] = core
     c['detailHtml'] = ''
     c['links'] = p.get('links', [])
+    if p.get('related'):
+        c['related'] = list(dict.fromkeys(list(c.get('related') or []) + p['related']))
 
 for cid, p in PATCH.items():
     if 'detailOnly' not in p:
         p['baseWarn'] = '' if (cid.startswith('kb_') or p.get('pair')) else ((by_id[cid].get('core') or {}).get('warn') or '')
 for cid, p in PATCH.items():
+    for r in p.get('related', []):
+        if r not in by_id: raise SystemExit('related id missing %s -> %s' % (cid, r))
     apply(by_id[cid], p)
 for cid in DETAIL:
     if cid not in PATCH:
@@ -204,7 +209,15 @@ function applyKbPatch(c, p){
   if(p.defn) c.def = p.defn;
   if(p.title) c.title = p.title;
   if(p.en) c.en = p.en;
+  if(p.related && p.related.length) c.related = Array.from(new Set([...(c.related||[]), ...p.related]));
   c.core = core;
+}
+function readJump(id){
+  const t = cards.find(x=>x.id===id); if(!t) return;
+  const el = document.getElementById('rc_'+id);
+  if(!el){ openCardFromRead(id); return; }
+  openDetail[id] = true; el.outerHTML = rcardHtml(t);
+  const el2 = document.getElementById('rc_'+id); if(el2) el2.scrollIntoView({behavior:'smooth', block:'start'});
 }
 let readView = 'short';   // mini 초간단(두음만) · short 간단(핵심어+두음, 기본) · full 길게(+키워드 표·❌)
 try{ readView = localStorage.getItem('gisulsa_view2') || 'short'; }catch(e){}
@@ -362,7 +375,7 @@ function pullUpdate(manual){
     const have = {}; cards.forEach(c=>have[c.id]=c);
     let added = 0, touched = 0;
     (u.cards||[]).forEach(c=>{ if(!have[c.id]){ cards.push(normalizeCard(c)); have[c.id]=cards[cards.length-1]; added++; } });
-    Object.keys(u.patch||{}).forEach(id=>{ const c = have[id]; if(!c) return; const before = JSON.stringify([c.core, c.detailHtml]); applyKbPatch(c, u.patch[id]); if(JSON.stringify([c.core, c.detailHtml])!==before) touched++; });
+    Object.keys(u.patch||{}).forEach(id=>{ const c = have[id]; if(!c) return; const before = JSON.stringify([c.core, c.detailHtml, c.related]); applyKbPatch(c, u.patch[id]); if(JSON.stringify([c.core, c.detailHtml, c.related])!==before) touched++; });
     Object.keys(u.imp||{}).forEach(id=>{ if(have[id]) have[id].imp = u.imp[id]; });
     Object.assign(TB_MAP, u.tb||{});
     saveCards();
@@ -474,6 +487,10 @@ s = s.replace(k2, ".cmp-tbl th.cmp-h { color:#2c2c2a; border-bottom:2px solid #d
 k3 = "c.type==='compare' ? '비교 키워드'"
 assert k3 in s, 'k3'
 s = s.replace(k3, "(c.type==='compare' || (core.cmp||[]).length) ? '비교표'", 1)
+# 11/22: 📖 읽기 자세히에 관련 개념(c.related) 칩 — 누르면 그 카드로
+k4 = "    if((c.links||[]).length) detail += `<div class=\"lbl\">📘 교재 노트</div>"
+assert s.count(k4) == 1, 'k4'
+s = s.replace(k4, "    { const rel = (c.related||[]).map(rid => cards.find(x=>x.id===rid)).filter(r => r && r.type!=='problem'); if(rel.length) detail += `<div class=\"lbl\">🔗 관련 개념</div><div class=\"chip-row\">${rel.map(r=>`<span class=\"chip related-chip\" onclick=\"readJump('${r.id}')\">${(r.type==='compare' || ((r.core||{}).cmp||[]).length)?'🔀 ':''}${esc(r.title)}</span>`).join('')}</div>`; }\n" + k4, 1)
 open(out, 'w', encoding='utf-8').write(s)
 print('patched', len(patched), 'added', len(added))
 print('added:', ', '.join(added))
