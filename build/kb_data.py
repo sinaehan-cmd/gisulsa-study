@@ -62,15 +62,6 @@ dict(id='kb_iso20000', new=True, subject='IT경영', title='ISO/IEC 20000', en='
       ('8.5 설계·구축·전환 ★','변경관리 · 서비스 설계 및 전환 · 릴리즈 및 배포'),
       ('8.6 해결·이행','장애 · 서비스 요청 · 문제'),
       ('8.7 서비스 보증','가용성 · 연속성 · 정보보안')]),
-dict(id='isp', subject='IT경영', title='ISP',
-  kw='중장기 · 전사 큰 그림 · 정보화 전략·계획',
-  warn='3번째 = 비전·전략 수립 (ISMP "요건분석"과 섞임) · 11/16 밤 3/5: 3단계를 ISMP "정보기술 분석"과 또 섞음, 목적모델(→목표모델)',
-  kb=[('단계','환경분석 · 현황분석 · 정보화 비전·전략 · 목표모델(TO-BE) · 통합이행계획'),
-      ('한 줄','AS-IS 보고(환현) → TO-BE 그리고(정목) → 사이를 잇는다(통)'),
-      ('ISP vs ISMP','글자가 길수록 자세하다 (ISP < ISMP)')]),
-dict(id='ismp', subject='IT경영', title='ISMP',
-  kw='프로젝트 단위 상세 · RFP 완성용',
-  kb=[('단계','착수 · 방향성 수립 · 정보기술 요건분석 · 구조·요건 정의 · 이행방안(RFP)')]),
 dict(id='design', subject='IT경영', title='디자인씽킹',
   mnem='공·정·아·프·테 (공감·정의·아이디어·프로토타입·테스트)'),
 # ---------------- SW ----------------
@@ -402,3 +393,6 @@ TOPICS += TOPICS_H_NEW + TOPICS_H
 # 11/21 저녁 저장 — 매일 보강 10장 (학원 배지 없는 v18 카드, v18 원본 기준)
 from kb_v18_i import TOPICS_I
 TOPICS += TOPICS_I
+# 11/22 저녁 저장 — 오늘 공부(ISP·ISMP·경영환경분석·가치사슬) + 매일 보강 10장
+from kb_v18_j import TOPICS_J_NEW, TOPICS_J
+TOPICS += TOPICS_J_NEW + TOPICS_J
