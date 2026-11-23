@@ -396,3 +396,8 @@ TOPICS += TOPICS_I
 # 11/22 저녁 저장 — 오늘 공부(ISP·ISMP·경영환경분석·가치사슬) + 매일 보강 10장
 from kb_v18_j import TOPICS_J_NEW, TOPICS_J
 TOPICS += TOPICS_J_NEW + TOPICS_J
+from kb_v18_k import TOPICS_K_NEW, TOPICS_K, RELATED_ADD as _REL_K
+TOPICS += TOPICS_K_NEW + TOPICS_K
+for _t in TOPICS:
+    if _t['id'] in _REL_K:
+        _t['related'] = list(dict.fromkeys(list(_t.get('related') or []) + _REL_K[_t['id']]))
