@@ -401,3 +401,9 @@ TOPICS += TOPICS_K_NEW + TOPICS_K
 for _t in TOPICS:
     if _t['id'] in _REL_K:
         _t['related'] = list(dict.fromkeys(list(_t.get('related') or []) + _REL_K[_t['id']]))
+# 11/24 저녁 저장 — 오늘 공부(아웃소싱·거버넌스 vs ITSM·투자분석) + 11/23 점검 지적분(PM 체계·WBS·Scope Creep·BCP·DRS) + 매일 보강 10장
+from kb_v18_l import TOPICS_L_NEW, TOPICS_L, RELATED_ADD as _REL_L
+TOPICS += TOPICS_L_NEW + TOPICS_L
+for _t in TOPICS:
+    if _t['id'] in _REL_L:
+        _t['related'] = list(dict.fromkeys(list(_t.get('related') or []) + _REL_L[_t['id']]))

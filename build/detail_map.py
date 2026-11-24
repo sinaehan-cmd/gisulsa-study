@@ -117,6 +117,16 @@ DETAIL = {
  'kb_cmp_vc_firm_industry': [('2026-11-22_IT경영_경영환경분석·PEST·SWOT.md', ['# Ⅱ.', '## 5.'])],
  # ---- 11/23 가트너 2027 MD (02_정리MD/IT경영) · 교재_20261123 (경영) ----
  'kb_gartner27': [('2026-11-23_IT경영_가트너2027·AI에이전트통제·지속가능민첩성.md', ['## Ⅰ.'])],
- 'kb_cmp_isp_bpr': [('2026-11-23_IT경영_교재20261123_구글문서.md', [])],
+ 'kb_cmp_isp_bpr': [('2026-11-23_IT경영_교재20261123_구글문서.md', []), ('2026-11-24_IT경영_IT거버넌스·ISP와BPR·아웃소싱.md', ['## Ⅱ.', '### 1.'])],
  'kb_bpr': [('2026-11-23_IT경영_교재20261123_구글문서.md', [])],
+ # ---- 11/24 IT경영 MD (02_정리MD) · 핵심암기 모음 PM·BCP 구역 ----
+ 'kb_outsourcing': [('2026-11-24_IT경영_IT거버넌스·ISP와BPR·아웃소싱.md', ['## Ⅱ.', '### 3.'])],
+ 'kb_cmp_itgov_itsm': [('2026-11-24_IT경영_IT거버넌스·ISP와BPR·아웃소싱.md', ['## Ⅱ.', '### 2.'])],
+ 'kb_itinvest': [('2026-11-24_IT경영_IT거버넌스·ISP와BPR·아웃소싱.md', ['## Ⅷ.'])],
+ 'itroi': [('2026-11-24_IT경영_IT거버넌스·ISP와BPR·아웃소싱.md', ['## Ⅷ.'])],
+ 'kb_pm_framework': [('2026-11-23_IT경영_핵심암기모음_PM체계·WBS·ScopeCreep·BCP_구글문서.md', ['## PM 전체 체계'])],
+ 'kb_wbs': [('2026-11-23_IT경영_핵심암기모음_PM체계·WBS·ScopeCreep·BCP_구글문서.md', ['## WBS'])],
+ 'kb_cmp_scope_gold': [('2026-11-23_IT경영_핵심암기모음_PM체계·WBS·ScopeCreep·BCP_구글문서.md', ['## Scope Creep'])],
+ 'kb_bcp': [('2026-11-23_IT경영_핵심암기모음_PM체계·WBS·ScopeCreep·BCP_구글문서.md', ['## BCP'])],
+ 'kb_drs': [('2026-11-23_IT경영_핵심암기모음_PM체계·WBS·ScopeCreep·BCP_구글문서.md', ['## BCP'])],
 }
