@@ -413,3 +413,9 @@ TOPICS = [t for t in TOPICS if t['id'] not in _UPD_M] + TOPICS_M_UPD + TOPICS_M_
 for _t in TOPICS:
     if _t['id'] in _REL_M:
         _t['related'] = list(dict.fromkeys(list(_t.get('related') or []) + _REL_M[_t['id']]))
+# 11/26 저녁 저장 — 오늘 공부 기록 없음 · 매일 보강 10장
+from kb_v18_n import TOPICS_N, TOPICS_N_FIX, UPD_IDS as _UPD_N, RELATED_ADD as _REL_N
+TOPICS = [t for t in TOPICS if t['id'] not in _UPD_N] + TOPICS_N_FIX + TOPICS_N
+for _t in TOPICS:
+    if _t['id'] in _REL_N:
+        _t['related'] = list(dict.fromkeys(list(_t.get('related') or []) + _REL_N[_t['id']]))

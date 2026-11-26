@@ -138,3 +138,10 @@ DETAIL = {
 }
 
 DETAIL['itroi'] = DETAIL.get('itroi', []) + [('2026-11-25_IT경영_핵심암기모음_BSC·투자분석·투자평가_구글문서.md', ['## IT-ROI']), ('2026-11-25_IT경영_교재20261125_구글문서.md', ['## B. IT-ROI'])]
+
+# ---- 11/26 매일 보강 (caos_all · 메모리 벽 공부노트 11/6 · ds_1112) ----
+DETAIL['ca_mmu'] = DETAIL.get('ca_mmu', []) + [('caos_all.md', ['# 1. 가상 메모리', '## 3)'])]
+DETAIL['ca_tlb'] = DETAIL.get('ca_tlb', []) + [('caos_all.md', ['# 1. 가상 메모리', '## 3)'])]
+DETAIL['ca_busarb'] = DETAIL.get('ca_busarb', []) + [('caos_all.md', ['# 6. 버스 중재'])]
+DETAIL['ca_memwall'] = DETAIL.get('ca_memwall', []) + [('caos_memwall_1106.md', ['# PART 2.', '## 2-1.'])]
+DETAIL['ca_cxl'] = DETAIL.get('ca_cxl', []) + [('caos_memwall_1106.md', ['# PART 2.', '## 2-4.']), ('ds_1112.md', ['## Ⅲ.', '### 7.'])]
