@@ -145,3 +145,15 @@ DETAIL['ca_tlb'] = DETAIL.get('ca_tlb', []) + [('caos_all.md', ['# 1. 가상 메
 DETAIL['ca_busarb'] = DETAIL.get('ca_busarb', []) + [('caos_all.md', ['# 6. 버스 중재'])]
 DETAIL['ca_memwall'] = DETAIL.get('ca_memwall', []) + [('caos_memwall_1106.md', ['# PART 2.', '## 2-1.'])]
 DETAIL['ca_cxl'] = DETAIL.get('ca_cxl', []) + [('caos_memwall_1106.md', ['# PART 2.', '## 2-4.']), ('ds_1112.md', ['## Ⅲ.', '### 7.'])]
+
+# ---- 11/27 매일 보강 (금요일 공부노트 11/6 · 칩·메모리 비교표 11/7 · 메모리 7축 11/2 발췌) ----
+DETAIL['ca_pim'] = DETAIL.get('ca_pim', []) + [('caos_chip_1107.md', ['# PART 2.', '## 2-3.']), ('caos_memwall_1106.md', ['## 2-5.'])]
+DETAIL['ca_pnm'] = DETAIL.get('ca_pnm', []) + [('caos_chip_1107.md', ['# PART 2.', '## 2-3.']), ('caos_memwall_1106.md', ['## 2-5.'])]
+DETAIL['ca_gpu'] = DETAIL.get('ca_gpu', []) + [('caos_hw_1106.md', ['# PART 3.', '## 3-2.']), ('caos_chip_1107.md', ['# PART 1.', '## 1-1.'])]
+DETAIL['ca_tpu'] = DETAIL.get('ca_tpu', []) + [('caos_hw_1106.md', ['# PART 3.', '## 3-2.']), ('caos_chip_1107.md', ['# PART 1.', '## 1-1.'])]
+DETAIL['ca_xpu'] = DETAIL.get('ca_xpu', []) + [('caos_chip_1107.md', ['# PART 1.', '## 1-1.']), ('caos_hw_1106.md', ['# PART 3.', '## 3-2.'])]
+DETAIL['ca_asic'] = DETAIL.get('ca_asic', []) + [('caos_chip_1107.md', ['# PART 1.', '## 1-2.'])]
+DETAIL['ca_fivenines'] = DETAIL.get('ca_fivenines', []) + [('caos_hw_1106.md', ['# PART 1.', '## 1-4.'])]
+DETAIL['ca_tpm'] = DETAIL.get('ca_tpm', []) + [('caos_hw_1106.md', ['# PART 3.', '## 3-5.'])]
+DETAIL['ca_raid'] = DETAIL.get('ca_raid', []) + [('caos_storage_1102.md', ['## 저장장치 이름표'])]
+DETAIL['ca_riscv'] = DETAIL.get('ca_riscv', []) + [('caos_hw_1106.md', ['# PART 4.']), ('caos_chip_1107.md', ['# PART 1.', '## 1-4.'])]

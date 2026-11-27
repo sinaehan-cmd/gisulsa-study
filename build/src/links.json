@@ -90,5 +90,17 @@
  "caos_memwall_1106.md": [
   "CA 메모리 벽·HBM·CXL 공부노트 (11/6)",
   "https://github.com/sinaehan-cmd/gisulsa-study/blob/main/build/src/caos_memwall_1106.md"
+ ],
+ "caos_hw_1106.md": [
+  "CA 금요일 공부노트 11/6 (Five Nines·가속 HW·TPM)",
+  "https://github.com/sinaehan-cmd/gisulsa-study/blob/main/build/src/caos_hw_1106.md"
+ ],
+ "caos_chip_1107.md": [
+  "칩·메모리 비교표 11/7",
+  "https://github.com/sinaehan-cmd/gisulsa-study/blob/main/build/src/caos_chip_1107.md"
+ ],
+ "caos_storage_1102.md": [
+  "메모리 7축·저장장치 이름표 11/2 (RAID)",
+  "https://github.com/sinaehan-cmd/gisulsa-study/blob/main/build/src/caos_storage_1102.md"
  ]
 }
