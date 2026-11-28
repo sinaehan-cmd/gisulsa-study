@@ -157,3 +157,17 @@ DETAIL['ca_fivenines'] = DETAIL.get('ca_fivenines', []) + [('caos_hw_1106.md', [
 DETAIL['ca_tpm'] = DETAIL.get('ca_tpm', []) + [('caos_hw_1106.md', ['# PART 3.', '## 3-5.'])]
 DETAIL['ca_raid'] = DETAIL.get('ca_raid', []) + [('caos_storage_1102.md', ['## 저장장치 이름표'])]
 DETAIL['ca_riscv'] = DETAIL.get('ca_riscv', []) + [('caos_hw_1106.md', ['# PART 4.']), ('caos_chip_1107.md', ['# PART 1.', '## 1-4.'])]
+
+# ---- 11/28 BCM·BCP·BIA·DRS 통합 MD (02_정리MD/IT경영) — 학생 요청: 네 토픽 교재 연결을 이 MD로 교체 ----
+_BCX = '2026-11-28_IT경영_BCP·BCM·BIA.md'
+DETAIL['bcm'] = [(_BCX, ['## 2. BCM'])]
+DETAIL['bia'] = [(_BCX, ['## 3. BIA'])]
+DETAIL['kb_bcp'] = [(_BCX, ['## 4. BCP'])]
+DETAIL['kb_drs'] = [(_BCX, ['## 5. DRS'])]
+DETAIL['kb_cmp_bcm_bcp'] = [(_BCX, ['## 6. BCM과 BCP'])]
+DETAIL['kb_cmp_bia_ra'] = [(_BCX, ['## 3. BIA', '### 라.'])]
+DETAIL['kb_cmp_drs_type'] = [(_BCX, ['## 5. DRS', '### 라.'])]
+DETAIL['kb_cmp_sync_async'] = [(_BCX, ['## 5. DRS', '### 마.'])]
+
+# ---- 11/28 매일 보강 ----
+DETAIL['ca_pollack'] = DETAIL.get('ca_pollack', []) + [('caos_hw_1106.md', ['# PART 4.']), ('caos_chip_1107.md', ['# PART 1.', '## 1-4.'])]
